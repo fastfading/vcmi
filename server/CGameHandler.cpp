@@ -4128,7 +4128,7 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 
 			//attack
-			int totalAttacks = stack->stackState.totalAttacks.getMeleeValue();
+			int totalAttacks = stack->totalAttacks.getMeleeValue();
 
 			for (int i = 0; i < totalAttacks; ++i)
 			{
@@ -4224,14 +4224,14 @@ bool CGameHandler::makeBattleAction(BattleAction &ba)
 			}
 			//allow more than one additional attack
 
-			int totalRangedAttacks = stack->stackState.totalAttacks.getRangedValue();
+			int totalRangedAttacks = stack->totalAttacks.getRangedValue();
 
 			for(int i = 1; i < totalRangedAttacks; ++i)
 			{
 				if(
 					stack->alive()
 					&& destinationStack->alive()
-					&& stack->stackState.shots.canUse()
+					&& stack->shots.canUse()
 					)
 				{
 					makeAttack(stack, destinationStack, 0, destination, false, true, false);
@@ -4761,7 +4761,7 @@ void CGameHandler::stackTurnTrigger(const CStack *st)
 				}
 			}
 		}
-		if(st->hasBonusOfType(Bonus::MANA_DRAIN) && !st->stackState.drainedMana)
+		if(st->hasBonusOfType(Bonus::MANA_DRAIN) && !st->drainedMana)
 		{
 			const PlayerColor opponent = gs->curB->otherPlayer(gs->curB->battleGetOwner(st));
 			const CGHeroInstance * opponentHero = gs->curB->getHero(opponent);
@@ -6024,7 +6024,7 @@ void CGameHandler::runBattle()
 			BattleUnitsChanged removeGhosts;
 			for(auto stack : curB.stacks)
 			{
-				if(stack->stackState.ghostPending)
+				if(stack->ghostPending)
 					removeGhosts.changedStacks.emplace_back(stack->unitId(), UnitChanges::EOperation::REMOVE);
 			}
 
@@ -6172,7 +6172,7 @@ void CGameHandler::runBattle()
 				{
 					stackTurnTrigger(next); //various effects
 
-					if(next->stackState.fear)
+					if(next->fear)
 					{
 						makeStackDoNothing(next); //end immediately if stack was affected by fear
 					}
@@ -6218,10 +6218,10 @@ void CGameHandler::runBattle()
 				{
 					//check for good morale
 					nextStackMorale = next->MoraleVal();
-					if(!next->stackState.hadMorale  //only one extra move per turn possible
-						&& !next->stackState.defending
+					if(!next->hadMorale  //only one extra move per turn possible
+						&& !next->defending
 						&& !next->waited()
-						&& !next->stackState.fear
+						&& !next->fear
 						&&  next->alive()
 						&&  nextStackMorale > 0
 						&& !(NBonus::hasOfType(gs->curB->battleGetFightingHero(0), Bonus::BLOCK_MORALE)
@@ -6627,14 +6627,14 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance * _army, Battl
 
 	for(CStack * st : bat->stacks)
 	{
-		if(st->stackState.summoned) //don't take into account temporary summoned stacks
+		if(st->summoned) //don't take into account temporary summoned stacks
 			continue;
 		if(st->owner != color) //remove only our stacks
 			continue;
 
 		logGlobal->debug("Calculating casualties for %s", st->nodeName());
 
-		st->stackState.health.takeResurrected();
+		st->health.takeResurrected();
 
 		if(st->slot == SlotID::ARROW_TOWERS_SLOT)
 		{
