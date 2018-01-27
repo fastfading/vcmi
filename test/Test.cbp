@@ -64,8 +64,8 @@
 		</Compiler>
 		<Linker>
 			<Add option="-lVCMI_lib" />
-			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+			<Add option="-lboost_system$(#boost.libsuffix)" />
 			<Add directory="../" />
 		</Linker>
 		<Unit filename="CMakeLists.txt" />
