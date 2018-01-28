@@ -33,7 +33,7 @@ class IServerAPI
 public:
 	virtual void sendClientConnecting() =0;
 	virtual void sendClientDisconnecting() =0;
-	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, CMapGenOptions * mapGenOpts = nullptr) =0;
+	virtual void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) =0;
 	virtual void setPlayer(PlayerColor color) =0;
 	virtual void setPlayerOption(ui8 what, ui8 dir, PlayerColor player) =0;
 	virtual void setDifficulty(int to) =0;
@@ -95,7 +95,7 @@ public:
 	// Lobby server API for UI
 	void sendClientConnecting() override;
 	void sendClientDisconnecting() override;
-	void setMapInfo(std::shared_ptr<CMapInfo> to, CMapGenOptions * mapGenOpts = nullptr) override;
+	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) override;
 	void setPlayer(PlayerColor color) override;
 	void setPlayerOption(ui8 what, ui8 dir, PlayerColor player) override;
 	void setDifficulty(int to) override;

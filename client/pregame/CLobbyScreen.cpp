@@ -59,7 +59,7 @@ CLobbyScreen::CLobbyScreen(CMenuScreen::EState type, CMenuScreen::EGameMode game
 	case CMenuScreen::newGame:
 	{
 		tabRand = new RandomMapTab();
-		tabRand->getMapInfoChanged() += std::bind(&IServerAPI::setMapInfo, CSH, _1, _2);
+		tabRand->mapInfoChanged += std::bind(&IServerAPI::setMapInfo, CSH, _1, _2);
 		tabRand->recActions = DISPOSE;
 		buttonRMG = new CButton(Point(411, 105), "GSPBUTT.DEF", CGI->generaltexth->zelp[47], 0, SDLK_r);
 		buttonRMG->addCallback([&]()

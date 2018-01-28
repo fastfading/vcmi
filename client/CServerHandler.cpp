@@ -352,7 +352,7 @@ void CServerHandler::sendClientDisconnecting()
 	c->sendPack(&lcd);
 }
 
-void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, CMapGenOptions * mapGenOpts)
+void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts)
 {
 	LobbySetMap lsm;
 	lsm.mapInfo = to;

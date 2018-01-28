@@ -10,16 +10,11 @@
 #include "StdInc.h"
 
 #include "CVCMIServer.h"
+#include "CGameHandler.h"
 
 #include "../lib/NetPacks.h"
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
-#include "../lib/mapping/CMapInfo.h"
-#include "../lib/rmg/CMapGenOptions.h"
-
-// MPTODO: ONLY FOR INITIALIZED START INFO, WE CAN AVOID IT!
-#include "CGameHandler.h"
-#include "../lib/CGameState.h"
 
 bool CLobbyPackToServer::checkClientPermissions(CVCMIServer * srv) const
 {
@@ -39,38 +34,17 @@ bool LobbyClientConnected::checkClientPermissions(CVCMIServer * srv) const
 
 bool LobbyClientConnected::applyOnServer(CVCMIServer * srv)
 {
-	clientId = c->connectionID = srv->currentClientId++;
-	c->uuid = uuid;
-
-	if(!srv->hostClient)
-	{
-		srv->hostClient = c;
-		srv->hostClientId = c->connectionID;
-		srv->si->mode = mode;
-	}
-	else
-	{
-		mode = srv->si->mode;
-	}
+	srv->clientConnected(c, names, uuid, mode);
+	// Server need to pass some data to newly connected client
+	clientId = c->connectionID;
+	mode = srv->si->mode;
 	capabilities = srv->capabilities;
 	hostClientId = srv->hostClientId;
-
-	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
-	for(auto & name : names)
-		logNetwork->info("Client %d player: %s", c->connectionID, name);
-
-	srv->clientConnected(c, names);
 	return true;
 }
 
 void LobbyClientConnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 {
-	for(auto & player : srv->playerNames)
-	{
-		int id = player.first;
-		if(player.second.connection == c->connectionID)
-			srv->announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % player.second.name % id % c->connectionID));
-	}
 	srv->updateAndPropagateLobbyState();
 }
 
@@ -93,26 +67,7 @@ bool LobbyClientDisconnected::checkClientPermissions(CVCMIServer * srv) const
 
 bool LobbyClientDisconnected::applyOnServer(CVCMIServer * srv)
 {
-	srv->connections -= c;
-	for(auto & player : srv->playerNames)
-	{
-		int id = player.first;
-		if(player.second.connection == c->connectionID)
-			srv->announceTxt(boost::str(boost::format("%s (pid %d cid %d) left the game") % id % srv->playerNames[id].name % c->connectionID));
-	}
 	srv->clientDisconnected(c);
-
-	if(srv->connections.empty())
-	{
-		logNetwork->error("Last connection lost, server will close itself...");
-		boost::this_thread::sleep(boost::posix_time::seconds(2)); //we should never be hasty when networking
-		srv->state = CVCMIServer::ENDING_WITHOUT_START;
-	}
-	else if(c == srv->hostClient)
-	{
-		auto newHost = *RandomGeneratorUtil::nextItem(srv->connections, CRandomGenerator::getDefault());
-		srv->passHost(newHost->connectionID);
-	}
 	return true;
 }
 
@@ -120,11 +75,21 @@ void LobbyClientDisconnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 {
 	if(shutdownServer)
 	{
+		logNetwork->info("Client requested shutdown, server will close itself...");
 		CVCMIServer::shuttingDown = shutdownServer;
 		srv->state = CVCMIServer::ENDING_WITHOUT_START;
 		return;
 	}
-
+	else if(srv->connections.empty())
+	{
+		logNetwork->error("Last connection lost, server will close itself...");
+		srv->state = CVCMIServer::ENDING_WITHOUT_START;
+	}
+	else if(c == srv->hostClient)
+	{
+		auto newHost = *RandomGeneratorUtil::nextItem(srv->connections, CRandomGenerator::getDefault());
+		srv->passHost(newHost->connectionID);
+	}
 	srv->updateAndPropagateLobbyState();
 }
 
@@ -135,23 +100,7 @@ bool LobbyChatMessage::checkClientPermissions(CVCMIServer * srv) const
 
 bool LobbySetMap::applyOnServer(CVCMIServer * srv)
 {
-	srv->mi = mapInfo;
-
-	if(srv->mi && srv->si->mode == StartInfo::LOAD_GAME)
-		srv->si->difficulty = srv->mi->scenarioOpts->difficulty;
-
-	srv->updateStartInfoOnMapChange();
-	if(srv->si->mode == StartInfo::NEW_GAME)
-	{
-		if(srv->mi && srv->mi->isRandomMap)
-		{
-			srv->si->mapGenOptions = std::shared_ptr<CMapGenOptions>(mapGenOpts);
-		}
-		else
-		{
-			srv->si->mapGenOptions.reset();
-		}
-	}
+	srv->updateStartInfoOnMapChange(mapInfo, mapGenOpts);
 	return true;
 }
 
@@ -167,15 +116,15 @@ bool LobbyStartGame::checkClientPermissions(CVCMIServer * srv) const
 
 bool LobbyStartGame::applyOnServer(CVCMIServer * srv)
 {
+	// Server will prepare gamestate and we announce StartInfo to clients
 	srv->prepareToStartGame();
-	initializedStartInfo = srv->gh->gameState()->initialOpts;
-
+	initializedStartInfo = std::make_shared<StartInfo>(*srv->gh->getStartInfo(true));
 	return true;
 }
 
 void LobbyStartGame::applyOnServerAfterAnnounce(CVCMIServer * srv)
 {
-	srv->state = CVCMIServer::ENDING_AND_STARTING_GAME;
+	srv->startGameImmidiately();
 }
 
 bool LobbyChangeHost::checkClientPermissions(CVCMIServer * srv) const
@@ -219,67 +168,7 @@ bool LobbyChangePlayerOption::applyOnServer(CVCMIServer * srv)
 
 bool LobbySetPlayer::applyOnServer(CVCMIServer * srv)
 {
-	struct PlayerToRestore
-	{
-		PlayerColor color;
-		int id;
-		void reset() { id = -1; color = PlayerColor::CANNOT_DETERMINE; }
-		PlayerToRestore(){ reset(); }
-	} playerToRestore;
-
-	// MPTODO: this should use PlayerSettings::controlledByAI / controlledByHuman
-	// Though it's need to be done carefully and tested
-	PlayerSettings & clicked = srv->si->playerInfos[clickedColor];
-	PlayerSettings * old = nullptr;
-
-	//identify clicked player
-	int clickedNameID = *(clicked.connectedPlayerIDs.begin()); //human is a number of player, zero means AI
-	if(clickedNameID > 0 && playerToRestore.id == clickedNameID) //player to restore is about to being replaced -> put him back to the old place
-	{
-		PlayerSettings & restPos = srv->si->playerInfos[playerToRestore.color];
-		srv->setPlayerConnectedId(restPos, playerToRestore.id);
-		playerToRestore.reset();
-	}
-
-	int newPlayer; //which player will take clicked position
-
-	//who will be put here?
-	if(!clickedNameID) //AI player clicked -> if possible replace computer with unallocated player
-	{
-		newPlayer = srv->getIdOfFirstUnallocatedPlayer();
-		if(!newPlayer) //no "free" player -> get just first one
-			newPlayer = srv->playerNames.begin()->first;
-	}
-	else //human clicked -> take next
-	{
-		auto i = srv->playerNames.find(clickedNameID); //clicked one
-		i++; //player AFTER clicked one
-
-		if(i != srv->playerNames.end())
-			newPlayer = i->first;
-		else
-			newPlayer = 0; //AI if we scrolled through all players
-	}
-
-	srv->setPlayerConnectedId(clicked, newPlayer); //put player
-
-	//if that player was somewhere else, we need to replace him with computer
-	if(newPlayer) //not AI
-	{
-		for(auto i = srv->si->playerInfos.begin(); i != srv->si->playerInfos.end(); i++)
-		{
-			int curNameID = *(i->second.connectedPlayerIDs.begin());
-			if(i->first != clickedColor && curNameID == newPlayer)
-			{
-				assert(i->second.connectedPlayerIDs.size());
-				playerToRestore.color = i->first;
-				playerToRestore.id = newPlayer;
-				srv->setPlayerConnectedId(i->second, PlayerSettings::PLAYER_AI); //set computer
-				old = &i->second;
-				break;
-			}
-		}
-	}
+	srv->setPlayer(clickedColor);
 	return true;
 }
 

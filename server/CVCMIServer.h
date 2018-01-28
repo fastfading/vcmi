@@ -55,6 +55,12 @@ class CBaseForGHApply;
 
 class CVCMIServer : public LobbyInfo
 {
+	SharedMemory * shm;
+	boost::asio::io_service * io;
+	TAcceptor * acceptor;
+	TSocket * upcomingConnection;
+	std::list<CPackForLobby *> announceQueue;
+	boost::recursive_mutex mx;
 	CApplier<CBaseForServerApply> * applier;
 
 public:
@@ -64,17 +70,20 @@ public:
 		INVALID, RUNNING, ENDING_WITHOUT_START, ENDING_AND_STARTING_GAME
 	} state;
 	ui16 port;
-	boost::asio::io_service * io;
-	TAcceptor * acceptor;
-	SharedMemory * shm;
 
+	static std::atomic<bool> shuttingDown;
 	boost::program_options::variables_map cmdLineOptions;
-
 	std::set<std::shared_ptr<CConnection>> connections;
-	std::list<CPackForLobby *> announceQueue;
-	boost::recursive_mutex mx;
+	std::atomic<int> currentClientId;
+	std::atomic<ui8> currentPlayerId;
+	std::shared_ptr<CConnection> hostClient;
+	ServerCapabilities * capabilities;
 
-	TSocket * upcomingConnection;
+	CVCMIServer(boost::program_options::variables_map & opts);
+	~CVCMIServer();
+	void run();
+	void prepareToStartGame();
+	void startGameImmidiately();
 
 	void startAsyncAccept();
 	void connectionAccepted(const boost::system::error_code & ec);
@@ -84,31 +93,19 @@ public:
 	void announcePack(CPackForLobby * pack);
 	void passHost(int toConnectionId);
 
-//public:
-	static std::atomic<bool> shuttingDown;
-	std::atomic<int> currentClientId;
-	std::atomic<ui8> currentPlayerId;
-
-	CVCMIServer(boost::program_options::variables_map & opts);
-	~CVCMIServer();
-
-	void run();
-	void prepareToStartGame();
-
-	std::shared_ptr<CConnection> hostClient;
-	ServerCapabilities * capabilities;
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
 	void addToAnnounceQueue(CPackForLobby * pack);
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
-	void updateStartInfoOnMapChange();
+	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt);
 
-	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names);
+	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode);
 	void clientDisconnected(std::shared_ptr<CConnection> c);
 
 	void updateAndPropagateLobbyState();
 
-	// Code only called from internals and netpacks. Should be moved on server-side
+	// Work with LobbyInfo
+	void setPlayer(PlayerColor clickedColor);
 	void optionNextHero(PlayerColor player, int dir); //dir == -1 or +1
 	int nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir);
 	bool canUseThisHero(PlayerColor player, int ID);

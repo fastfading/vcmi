@@ -52,6 +52,8 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
+#include "../lib/CGameState.h"
+
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
 #include <execinfo.h>
 #endif
@@ -227,8 +229,14 @@ void CVCMIServer::prepareToStartGame()
 		break;
 	}
 	gh->conns = connections;
-	for(auto c : gh->conns) // MPTODO: should we need to do that if we sent gamestate?
+}
+
+void CVCMIServer::startGameImmidiately()
+{
+	for(auto c : gh->conns)
 		c->enterGameplayConnectionMode(gh->gs);
+
+	state = CVCMIServer::ENDING_AND_STARTING_GAME;
 }
 
 void CVCMIServer::startAsyncAccept()
@@ -356,7 +364,7 @@ void CVCMIServer::passHost(int toConnectionId)
 	{
 		if(c->connectionID != toConnectionId)
 			continue;
-		if(hostClient == c)
+		if(isClientHost(c->connectionID))
 			return;
 
 		hostClient = c;
@@ -369,10 +377,22 @@ void CVCMIServer::passHost(int toConnectionId)
 	}
 }
 
-void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names)
+void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode)
 {
+	c->connectionID = currentClientId++;
+	c->uuid = uuid;
+
+	if(!hostClient)
+	{
+		hostClient = c;
+		hostClientId = c->connectionID;
+		si->mode = mode;
+	}
+
+	logNetwork->info("Connection with client %d established. UUID: %s", c->connectionID, c->uuid);
 	for(auto & name : names)
 	{
+		logNetwork->info("Client %d player: %s", c->connectionID, name);
 		ui8 id = currentPlayerId++;
 
 		ClientPlayer cp;
@@ -380,7 +400,7 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 		cp.name = name;
 		cp.color = 255;
 		playerNames.insert(std::make_pair(id, cp));
-
+		announceTxt(boost::str(boost::format("%s (pid %d cid %d) joins the game") % name % id % c->connectionID));
 
 		//put new player in first slot with AI
 		for(auto & elem : si->playerInfos)
@@ -396,15 +416,18 @@ void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<st
 
 void CVCMIServer::clientDisconnected(std::shared_ptr<CConnection> c)
 {
+	connections -= c;
 	for(auto & pair : playerNames)
 	{
 		if(pair.second.connection != c->connectionID)
 			continue;
 
-		playerNames.erase(pair.first);
+		int id = pair.first;
+		announceTxt(boost::str(boost::format("%s (pid %d cid %d) left the game") % id % playerNames[id].name % c->connectionID));
+		playerNames.erase(id);
 
 		// Reset in-game players client used back to AI
-		if(PlayerSettings * s = si->getPlayersSettings(pair.first))
+		if(PlayerSettings * s = si->getPlayersSettings(id))
 		{
 			setPlayerConnectedId(*s, PlayerSettings::PLAYER_AI);
 		}
@@ -423,8 +446,13 @@ void CVCMIServer::setPlayerConnectedId(PlayerSettings & pset, ui8 player) const
 		pset.connectedPlayerIDs.insert(player);
 }
 
-void CVCMIServer::updateStartInfoOnMapChange()
+void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpts)
 {
+	mi = mapInfo;
+
+	if(mi && si->mode == StartInfo::LOAD_GAME)
+		si->difficulty = mi->scenarioOpts->difficulty;
+
 	si->playerInfos.clear();
 	if(!mi)
 		return;
@@ -468,6 +496,18 @@ void CVCMIServer::updateStartInfoOnMapChange()
 
 		pset.handicap = PlayerSettings::NO_HANDICAP;
 	}
+
+	if(si->mode == StartInfo::NEW_GAME)
+	{
+		if(mi && mi->isRandomMap)
+		{
+			si->mapGenOptions = std::shared_ptr<CMapGenOptions>(mapGenOpts);
+		}
+		else
+		{
+			si->mapGenOptions.reset();
+		}
+	}
 }
 
 void CVCMIServer::updateAndPropagateLobbyState()
@@ -492,6 +532,71 @@ void CVCMIServer::updateAndPropagateLobbyState()
 	lus->startInfo = si;
 	lus->playerNames = playerNames;
 	addToAnnounceQueue(lus);
+}
+
+void CVCMIServer::setPlayer(PlayerColor clickedColor)
+{
+	struct PlayerToRestore
+	{
+		PlayerColor color;
+		int id;
+		void reset() { id = -1; color = PlayerColor::CANNOT_DETERMINE; }
+		PlayerToRestore(){ reset(); }
+	} playerToRestore;
+
+	// MPTODO: this should use PlayerSettings::controlledByAI / controlledByHuman
+	// Though it's need to be done carefully and tested
+	PlayerSettings & clicked = si->playerInfos[clickedColor];
+	PlayerSettings * old = nullptr;
+
+	//identify clicked player
+	int clickedNameID = *(clicked.connectedPlayerIDs.begin()); //human is a number of player, zero means AI
+	if(clickedNameID > 0 && playerToRestore.id == clickedNameID) //player to restore is about to being replaced -> put him back to the old place
+	{
+		PlayerSettings & restPos = si->playerInfos[playerToRestore.color];
+		setPlayerConnectedId(restPos, playerToRestore.id);
+		playerToRestore.reset();
+	}
+
+	int newPlayer; //which player will take clicked position
+
+	//who will be put here?
+	if(!clickedNameID) //AI player clicked -> if possible replace computer with unallocated player
+	{
+		newPlayer = getIdOfFirstUnallocatedPlayer();
+		if(!newPlayer) //no "free" player -> get just first one
+			newPlayer = playerNames.begin()->first;
+	}
+	else //human clicked -> take next
+	{
+		auto i = playerNames.find(clickedNameID); //clicked one
+		i++; //player AFTER clicked one
+
+		if(i != playerNames.end())
+			newPlayer = i->first;
+		else
+			newPlayer = 0; //AI if we scrolled through all players
+	}
+
+	setPlayerConnectedId(clicked, newPlayer); //put player
+
+	//if that player was somewhere else, we need to replace him with computer
+	if(newPlayer) //not AI
+	{
+		for(auto i = si->playerInfos.begin(); i != si->playerInfos.end(); i++)
+		{
+			int curNameID = *(i->second.connectedPlayerIDs.begin());
+			if(i->first != clickedColor && curNameID == newPlayer)
+			{
+				assert(i->second.connectedPlayerIDs.size());
+				playerToRestore.color = i->first;
+				playerToRestore.id = newPlayer;
+				setPlayerConnectedId(i->second, PlayerSettings::PLAYER_AI); //set computer
+				old = &i->second;
+				break;
+			}
+		}
+	}
 }
 
 void CVCMIServer::optionNextCastle(PlayerColor player, int dir)

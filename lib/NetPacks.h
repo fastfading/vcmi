@@ -2565,7 +2565,7 @@ struct LobbyGuiAction : public CLobbyPackToPropagate
 struct LobbyStartGame : public CLobbyPackToPropagate
 {
 	// Set by server
-	StartInfo * initializedStartInfo;
+	std::shared_ptr<StartInfo> initializedStartInfo;
 
 	LobbyStartGame() : initializedStartInfo(nullptr) {}
 	bool checkClientPermissions(CVCMIServer * srv) const;
@@ -2615,7 +2615,7 @@ struct LobbyUpdateState : public CLobbyPackToPropagate
 struct LobbySetMap : public CLobbyPackToServer
 {
 	std::shared_ptr<CMapInfo> mapInfo;
-	CMapGenOptions * mapGenOpts;
+	std::shared_ptr<CMapGenOptions> mapGenOpts;
 
 	LobbySetMap() : mapInfo(nullptr), mapGenOpts(nullptr) {}
 	bool applyOnServer(CVCMIServer * srv);

@@ -87,7 +87,7 @@ void LobbyGuiAction::applyOnLobby(CLobbyScreen * lobby)
 bool LobbyStartGame::applyOnLobbyImmidiately(CLobbyScreen * lobby)
 {
 	CSH->pauseNetpackRetrieving = true;
-	CSH->si = std::shared_ptr<StartInfo>(initializedStartInfo);
+	CSH->si = initializedStartInfo;
 	return true;
 }
 

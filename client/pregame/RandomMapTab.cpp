@@ -27,6 +27,7 @@
 
 RandomMapTab::RandomMapTab()
 {
+	mapGenOptions = std::make_shared<CMapGenOptions>();
 	OBJ_CONSTRUCTION;
 	bg = new CPicture("RANMAPBK", 0, 6);
 
@@ -40,8 +41,8 @@ RandomMapTab::RandomMapTab()
 	mapSizeBtnGroup->addCallback([&](int btnId)
 	{
 		auto mapSizeVal = getPossibleMapSizes();
-		mapGenOptions.setWidth(mapSizeVal[btnId]);
-		mapGenOptions.setHeight(mapSizeVal[btnId]);
+		mapGenOptions->setWidth(mapSizeVal[btnId]);
+		mapGenOptions->setHeight(mapSizeVal[btnId]);
 		updateMapInfoByHost();
 	});
 
@@ -50,7 +51,7 @@ RandomMapTab::RandomMapTab()
 	//twoLevelsBtn->select(true); for now, deactivated
 	twoLevelsBtn->addCallback([&](bool on)
 	{
-		mapGenOptions.setHasTwoLevels(on);
+		mapGenOptions->setHasTwoLevels(on);
 		updateMapInfoByHost();
 	});
 
@@ -70,7 +71,7 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(playersCntGroup, numberDefs, 1, 8, NUMBERS_WIDTH, 204, 212);
 	playersCntGroup->addCallback([&](int btnId)
 	{
-		mapGenOptions.setPlayerCount(btnId);
+		mapGenOptions->setPlayerCount(btnId);
 		deactivateButtonsFrom(teamsCntGroup, btnId);
 		deactivateButtonsFrom(compOnlyPlayersCntGroup, btnId);
 		validatePlayersCnt(btnId);
@@ -84,7 +85,7 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(teamsCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 214, 222);
 	teamsCntGroup->addCallback([&](int btnId)
 	{
-		mapGenOptions.setTeamCount(btnId);
+		mapGenOptions->setTeamCount(btnId);
 		updateMapInfoByHost();
 	});
 
@@ -95,7 +96,7 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(compOnlyPlayersCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 224, 232);
 	compOnlyPlayersCntGroup->addCallback([&](int btnId)
 	{
-		mapGenOptions.setCompOnlyPlayerCount(btnId);
+		mapGenOptions->setCompOnlyPlayerCount(btnId);
 		deactivateButtonsFrom(compOnlyTeamsCntGroup, (btnId == 0 ? 1 : btnId));
 		validateCompOnlyPlayersCnt(btnId);
 		updateMapInfoByHost();
@@ -109,7 +110,7 @@ RandomMapTab::RandomMapTab()
 	deactivateButtonsFrom(compOnlyTeamsCntGroup, 1);
 	compOnlyTeamsCntGroup->addCallback([&](int btnId)
 	{
-		mapGenOptions.setCompOnlyTeamCount(btnId);
+		mapGenOptions->setCompOnlyTeamCount(btnId);
 		updateMapInfoByHost();
 	});
 
@@ -122,7 +123,7 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(waterContentGroup, waterContentBtns, 0, 2, WIDE_BTN_WIDTH, 243, 246);
 	waterContentGroup->addCallback([&](int btnId)
 	{
-		mapGenOptions.setWaterContent(static_cast<EWaterContent::EWaterContent>(btnId));
+		mapGenOptions->setWaterContent(static_cast<EWaterContent::EWaterContent>(btnId));
 		updateMapInfoByHost();
 	});
 
@@ -135,9 +136,9 @@ RandomMapTab::RandomMapTab()
 	monsterStrengthGroup->addCallback([&](int btnId)
 	{
 		if(btnId < 0)
-			mapGenOptions.setMonsterStrength(EMonsterStrength::RANDOM);
+			mapGenOptions->setMonsterStrength(EMonsterStrength::RANDOM);
 		else
-			mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId + EMonsterStrength::GLOBAL_WEAK)); //value 2 to 4
+			mapGenOptions->setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId + EMonsterStrength::GLOBAL_WEAK)); //value 2 to 4
 		updateMapInfoByHost();
 	});
 
@@ -191,15 +192,15 @@ void RandomMapTab::updateMapInfoByHost()
 	mapInfo->mapHeader->name = CGI->generaltexth->allTexts[740];
 	mapInfo->mapHeader->description = CGI->generaltexth->allTexts[741];
 	mapInfo->mapHeader->difficulty = 1; // Normal
-	mapInfo->mapHeader->height = mapGenOptions.getHeight();
-	mapInfo->mapHeader->width = mapGenOptions.getWidth();
-	mapInfo->mapHeader->twoLevel = mapGenOptions.getHasTwoLevels();
+	mapInfo->mapHeader->height = mapGenOptions->getHeight();
+	mapInfo->mapHeader->width = mapGenOptions->getWidth();
+	mapInfo->mapHeader->twoLevel = mapGenOptions->getHasTwoLevels();
 
 	// Generate player information
 	mapInfo->mapHeader->players.clear();
 	int playersToGen = PlayerColor::PLAYER_LIMIT_I;
-	if(mapGenOptions.getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
-		playersToGen = mapGenOptions.getPlayerCount();
+	if(mapGenOptions->getPlayerCount() != CMapGenOptions::RANDOM_SIZE)
+		playersToGen = mapGenOptions->getPlayerCount();
 	mapInfo->mapHeader->howManyTeams = playersToGen;
 
 	for(int i = 0; i < playersToGen; ++i)
@@ -207,7 +208,7 @@ void RandomMapTab::updateMapInfoByHost()
 		PlayerInfo player;
 		player.isFactionRandom = true;
 		player.canComputerPlay = true;
-		if(mapGenOptions.getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE && i >= mapGenOptions.getHumanOnlyPlayerCount())
+		if(mapGenOptions->getCompOnlyPlayerCount() != CMapGenOptions::RANDOM_SIZE && i >= mapGenOptions->getHumanOnlyPlayerCount())
 		{
 			player.canHumanPlay = false;
 		}
@@ -221,22 +222,7 @@ void RandomMapTab::updateMapInfoByHost()
 		mapInfo->mapHeader->players.push_back(player);
 	}
 
-	mapInfoChanged(mapInfo, &mapGenOptions);
-}
-
-CFunctionList<void(std::shared_ptr<CMapInfo>, CMapGenOptions *)> & RandomMapTab::getMapInfoChanged()
-{
-	return mapInfoChanged;
-}
-
-std::shared_ptr<CMapInfo> RandomMapTab::getMapInfo() const
-{
-	return mapInfo;
-}
-
-const CMapGenOptions & RandomMapTab::getMapGenOptions() const
-{
-	return mapGenOptions;
+	mapInfoChanged(mapInfo, mapGenOptions);
 }
 
 void RandomMapTab::setMapGenOptions(std::shared_ptr<CMapGenOptions> opts)
@@ -303,18 +289,18 @@ void RandomMapTab::validatePlayersCnt(int playersCnt)
 		return;
 	}
 
-	if(mapGenOptions.getTeamCount() >= playersCnt)
+	if(mapGenOptions->getTeamCount() >= playersCnt)
 	{
-		mapGenOptions.setTeamCount(playersCnt - 1);
-		teamsCntGroup->setSelected(mapGenOptions.getTeamCount());
+		mapGenOptions->setTeamCount(playersCnt - 1);
+		teamsCntGroup->setSelected(mapGenOptions->getTeamCount());
 	}
-	if(mapGenOptions.getCompOnlyPlayerCount() >= playersCnt)
+	if(mapGenOptions->getCompOnlyPlayerCount() >= playersCnt)
 	{
-		mapGenOptions.setCompOnlyPlayerCount(playersCnt - 1);
-		compOnlyPlayersCntGroup->setSelected(mapGenOptions.getCompOnlyPlayerCount());
+		mapGenOptions->setCompOnlyPlayerCount(playersCnt - 1);
+		compOnlyPlayersCntGroup->setSelected(mapGenOptions->getCompOnlyPlayerCount());
 	}
 
-	validateCompOnlyPlayersCnt(mapGenOptions.getCompOnlyPlayerCount());
+	validateCompOnlyPlayersCnt(mapGenOptions->getCompOnlyPlayerCount());
 }
 
 void RandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
@@ -324,10 +310,10 @@ void RandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 		return;
 	}
 
-	if(mapGenOptions.getCompOnlyTeamCount() >= compOnlyPlayersCnt)
+	if(mapGenOptions->getCompOnlyTeamCount() >= compOnlyPlayersCnt)
 	{
 		int compOnlyTeamCount = compOnlyPlayersCnt == 0 ? 0 : compOnlyPlayersCnt - 1;
-		mapGenOptions.setCompOnlyTeamCount(compOnlyTeamCount);
+		mapGenOptions->setCompOnlyTeamCount(compOnlyTeamCount);
 		updateMapInfoByHost();
 		compOnlyTeamsCntGroup->setSelected(compOnlyTeamCount);
 	}

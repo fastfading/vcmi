@@ -19,10 +19,9 @@ public:
 
 	void showAll(SDL_Surface * to) override;
 	void updateMapInfoByHost();
-	CFunctionList<void(const std::shared_ptr<CMapInfo>, CMapGenOptions *)> & getMapInfoChanged();
-	std::shared_ptr<CMapInfo> getMapInfo() const;
-	const CMapGenOptions & getMapGenOptions() const;
 	void setMapGenOptions(std::shared_ptr<CMapGenOptions> opts);
+
+	CFunctionList<void(std::shared_ptr<CMapInfo>, std::shared_ptr<CMapGenOptions>)> mapInfoChanged;
 
 private:
 	void addButtonsWithRandToGroup(CToggleGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
@@ -37,7 +36,6 @@ private:
 	CToggleGroup * mapSizeBtnGroup, * playersCntGroup, * teamsCntGroup, * compOnlyPlayersCntGroup,
 		* compOnlyTeamsCntGroup, * waterContentGroup, * monsterStrengthGroup;
 	CButton * showRandMaps;
-	CMapGenOptions mapGenOptions;
+	std::shared_ptr<CMapGenOptions> mapGenOptions;
 	std::shared_ptr<CMapInfo> mapInfo;
-	CFunctionList<void(std::shared_ptr<CMapInfo>, CMapGenOptions *)> mapInfoChanged;
 };
