@@ -24,11 +24,9 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
-// MPTODO: for CServerHandler::getStartInfo
 #include "../lib/rmg/CMapGenOptions.h"
 #include "../lib/mapping/CCampaignHandler.h"
 
-//
 #include "CGameInfo.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapInfo.h"

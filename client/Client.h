@@ -139,7 +139,6 @@ public:
 
 
 	static ThreadSafeVector<int> waitingRequest; //FIXME: make this normal field (need to join all threads before client destruction)
-	bool terminate; // tell to terminate MPTODO: remove
 
 	void handlePack(CPack * pack); //applies the given pack and deletes it
 	void stopConnection();

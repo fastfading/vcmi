@@ -157,7 +157,6 @@ public:
 	void removeFromGui();
 	static void showLoadingScreen(std::function<void()> loader);
 
-	//MPTODO mess
 	static CPicture * createPicture(const JsonNode & config);
 };
 

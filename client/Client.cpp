@@ -125,7 +125,6 @@ void CClient::init()
 	IObjectInterface::cb = this;
 	gs = nullptr;
 	erm = nullptr;
-	terminate = false;
 }
 
 void CClient::newGame()
@@ -452,8 +451,6 @@ void CClient::handlePack(CPack * pack)
 
 void CClient::stopConnection()
 {
-	terminate = true;
-
 	if(CSH->c)
 	{
 		if(CSH->isHost()) //request closing connection

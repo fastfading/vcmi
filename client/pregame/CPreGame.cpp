@@ -385,12 +385,10 @@ void CGPreGame::disposeGraphics()
 	lossIcons->unload();
 }
 
-//MPTODO
 CPicture * CGPreGame::createPicture(const JsonNode & config)
 {
 	return new CPicture(config["name"].String(), config["x"].Float(), config["y"].Float());
 }
-//MPTODO
 
 CMultiMode::CMultiMode(CMenuScreen::EState State)
 	: state(State)
@@ -464,8 +462,6 @@ void CMultiPlayers::onChange(std::string newText)
 	for(auto & elem : txt)
 		if(!elem->text.empty())
 			namesCount++;
-
-// MPTODO	ok->block(namesCount < 2);
 }
 
 void CMultiPlayers::enterSelectionScreen()
