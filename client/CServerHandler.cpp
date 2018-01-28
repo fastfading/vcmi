@@ -18,7 +18,6 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/serializer/Connection.h"
 
-#include <SDL.h>
 #include "../lib/StartInfo.h"
 
 #include <boost/uuid/uuid.hpp>
@@ -214,8 +213,7 @@ void CServerHandler::justConnectToServer(const std::string & addr, const ui16 po
 		catch(...)
 		{
 			logNetwork->error("\nCannot establish connection! Retrying within 2 seconds");
-			// MPTODO: remove SDL dependency from server handler
-			SDL_Delay(2000);
+			boost::this_thread::sleep(boost::posix_time::seconds(2));
 		}
 	}
 	threadConnectionToServer = new boost::thread(&CServerHandler::threadHandleConnection, this);
