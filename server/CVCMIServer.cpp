@@ -358,23 +358,21 @@ void CVCMIServer::addToAnnounceQueue(CPackForLobby * pack)
 	announceQueue.push_back(pack);
 }
 
-void CVCMIServer::passHost(int toConnectionId)
+bool CVCMIServer::passHost(int toConnectionId)
 {
 	for(auto c : connections)
 	{
+		if(isClientHost(c->connectionID))
+			continue;
 		if(c->connectionID != toConnectionId)
 			continue;
-		if(isClientHost(c->connectionID))
-			return;
 
 		hostClient = c;
 		hostClientId = c->connectionID;
 		announceTxt(boost::str(boost::format("Pass host to connection %d") % toConnectionId));
-		auto ph = new LobbyChangeHost();
-		ph->newHostConnectionId = toConnectionId;
-		addToAnnounceQueue(ph);
-		return;
+		return true;
 	}
+	return false;
 }
 
 void CVCMIServer::clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode)

@@ -244,7 +244,15 @@ void SelectionTab::toggleMode(CMenuScreen::EGameMode mode)
 			assert(0);
 			break;
 		}
+		if(slider)
+		{
+			slider->block(false);
+			filter(0);
+		}
+		positionsToShow = 18;
 	}
+
+	redraw();
 }
 
 SelectionTab::~SelectionTab()

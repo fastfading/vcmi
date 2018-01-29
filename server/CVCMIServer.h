@@ -91,7 +91,7 @@ public:
 	void handleReceivedPack(CPackForLobby * pack);
 
 	void announcePack(CPackForLobby * pack);
-	void passHost(int toConnectionId);
+	bool passHost(int toConnectionId);
 
 	void announceTxt(const std::string & txt, const std::string & playerName = "system");
 	void addToAnnounceQueue(CPackForLobby * pack);

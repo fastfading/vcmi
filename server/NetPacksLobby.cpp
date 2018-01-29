@@ -87,8 +87,10 @@ void LobbyClientDisconnected::applyOnServerAfterAnnounce(CVCMIServer * srv)
 	}
 	else if(c == srv->hostClient)
 	{
+		auto ph = new LobbyChangeHost();
 		auto newHost = *RandomGeneratorUtil::nextItem(srv->connections, CRandomGenerator::getDefault());
-		srv->passHost(newHost->connectionID);
+		ph->newHostConnectionId = newHost->connectionID;
+		srv->addToAnnounceQueue(ph);
 	}
 	srv->updateAndPropagateLobbyState();
 }
@@ -134,8 +136,7 @@ bool LobbyChangeHost::checkClientPermissions(CVCMIServer * srv) const
 
 bool LobbyChangeHost::applyOnServer(CVCMIServer * srv)
 {
-	srv->passHost(newHostConnectionId);
-	return true;
+	return srv->passHost(newHostConnectionId);
 }
 
 bool LobbyChangePlayerOption::checkClientPermissions(CVCMIServer * srv) const
