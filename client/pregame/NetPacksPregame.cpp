@@ -110,17 +110,13 @@ void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 		CSH->mi = mapInfo;
 	else
 		CSH->mi.reset();
-	lobby->card->changeSelection();
-	if(lobby->screenType != CMenuScreen::campaignList)
-	{
-		lobby->tabOpt->recreate();
-	}
 
 	CSH->playerNames = playerNames;
 	CSH->si = startInfo;
-	if(CSH->mi)
+	if(CSH->mi && lobby->screenType != CMenuScreen::campaignList)
 		lobby->tabOpt->recreate(); //will force to recreate using current sInfo
 
+	lobby->card->changeSelection();
 	lobby->card->difficulty->setSelected(startInfo->difficulty);
 
 	// MPTODO: idea is to always apply any changes on guest as well as on host
