@@ -217,7 +217,7 @@ EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Targe
 
 	auto possibleTargets = m->cb->battleGetUnitsIf([&](const battle::Unit * unit) -> bool
 	{
-		return unit->isValidTarget(true);
+		return isValidTarget(m, unit);
 	});
 
 	for(auto unit : possibleTargets)
