@@ -141,14 +141,22 @@ bool Obstacle::applicable(Problem & problem, const Mechanics * m, const EffectTa
 	if(!m->isMassive())
 	{
 		const bool requiresClearTiles = m->requiresClearTiles();
+		const ObstacleSideOptions & options = sideOptions.at(m->casterSide);
 
 		if(target.empty())
 			return noRoomToPlace(problem, m);
 
 		for(const auto & destination : target)
 		{
-			if(!isHexAvailable(m->cb, destination.hexValue, requiresClearTiles))
-				return noRoomToPlace(problem, m);
+			for(auto & trasformation : options.shape)
+			{
+				BattleHex hex = destination.hexValue;
+				for(auto direction : trasformation)
+					hex.moveInDirection(direction, false);
+
+				if(!isHexAvailable(m->cb, hex, requiresClearTiles))
+					return noRoomToPlace(problem, m);
+			}
 		}
 	}
 
