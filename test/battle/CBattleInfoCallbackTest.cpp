@@ -234,3 +234,186 @@ TEST_F(BattleFinishedTest, LastWarMachineLoose)
 
 	expectBattleWinner(0);
 }
+
+class BattleMatchOwnerTest : public CBattleInfoCallbackTest
+{
+public:
+	void setDefaultExpectations()
+	{
+		redirectUnitsToFake();
+		unitsFake.setDefaultBonusExpectations();
+
+		EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::ATTACKER))).WillRepeatedly(Return(PlayerColor(0)));
+		EXPECT_CALL(battleMock, getSidePlayer(Eq(BattleSide::DEFENDER))).WillRepeatedly(Return(PlayerColor(1)));
+	}
+};
+
+TEST_F(BattleMatchOwnerTest, normalToSelf)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, boost::logic::indeterminate));
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit1, false));
+}
+
+TEST_F(BattleMatchOwnerTest, hypnotizedToSelf)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit1, boost::logic::indeterminate));
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit1, false));
+}
+
+TEST_F(BattleMatchOwnerTest, normalToNormalAlly)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	UnitFake & unit2 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+TEST_F(BattleMatchOwnerTest, hypnotizedToNormalAlly)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	UnitFake & unit2 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+TEST_F(BattleMatchOwnerTest, normalToHypnotizedAlly)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	UnitFake & unit2 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+TEST_F(BattleMatchOwnerTest, hypnotizedToHypnotizedAlly)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	UnitFake & unit2 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+
+TEST_F(BattleMatchOwnerTest, normalToNormalEnemy)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	UnitFake & unit2 = unitsFake.add(BattleSide::DEFENDER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+TEST_F(BattleMatchOwnerTest, hypnotizedToNormalEnemy)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	UnitFake & unit2 = unitsFake.add(BattleSide::DEFENDER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+TEST_F(BattleMatchOwnerTest, normalToHypnotizedEnemy)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	UnitFake & unit2 = unitsFake.add(BattleSide::DEFENDER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
+
+TEST_F(BattleMatchOwnerTest, hypnotizedToHypnotizedEnemy)
+{
+	UnitFake & unit1 = unitsFake.add(BattleSide::ATTACKER);
+	EXPECT_CALL(unit1, unitId()).WillRepeatedly(Return(42));
+	unit1.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	UnitFake & unit2 = unitsFake.add(BattleSide::DEFENDER);
+	EXPECT_CALL(unit2, unitId()).WillRepeatedly(Return(4242));
+	unit2.addNewBonus(std::make_shared<Bonus>(Bonus::PERMANENT, Bonus::HYPNOTIZED, Bonus::CREATURE_ABILITY, 0, 0));
+
+	setDefaultExpectations();
+
+	startBattle();
+
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, true));
+	EXPECT_TRUE(subject.battleMatchOwner(&unit1, &unit2, boost::logic::indeterminate));
+	EXPECT_FALSE(subject.battleMatchOwner(&unit1, &unit2, false));
+}
