@@ -558,7 +558,7 @@ void CBonusSelection::restartMap()
 
 		SDL_Event event;
 		event.type = SDL_USEREVENT;
-		event.user.code = PREPARE_RESTART_CAMPAIGN;
+		event.user.code = EUserEvent::PREPARE_RESTART_CAMPAIGN;
 		event.user.data1 = si;
 		SDL_PushEvent(&event);
 	}, 0);

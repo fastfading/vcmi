@@ -1248,20 +1248,20 @@ static void handleEvent(SDL_Event & ev)
 	{
 		switch(ev.user.code)
 		{
-		case FORCE_QUIT:
+		case EUserEvent::FORCE_QUIT:
 			{
 				handleQuit(false);
 				return;
 			}
 		    break;
-		case RETURN_TO_MAIN_MENU:
+		case EUserEvent::RETURN_TO_MAIN_MENU:
 			{
 				endGame();
 				GH.curInt = CGPreGame::create();
 				GH.defActionsDef = 63;
 			}
 			break;
-		case RESTART_GAME:
+		case EUserEvent::RESTART_GAME:
 			{
 				StartInfo si = *client->getStartInfo(true);
 				si.seedToBeUsed = 0; //server gives new random generator seed if 0
@@ -1269,14 +1269,14 @@ static void handleEvent(SDL_Event & ev)
 //MPTODO				startGame(&si);
 			}
 			break;
-		case PREPARE_RESTART_CAMPAIGN:
+		case EUserEvent::PREPARE_RESTART_CAMPAIGN:
 			{
 				auto si = reinterpret_cast<StartInfo *>(ev.user.data1);
 				endGame();
 //MPTODO				startGame(si);
 			}
 			break;
-		case RETURN_TO_MENU_LOAD:
+		case EUserEvent::RETURN_TO_MENU_LOAD:
 			endGame();
 			CGPreGame::create();
 			GH.defActionsDef = 63;
@@ -1284,10 +1284,10 @@ static void handleEvent(SDL_Event & ev)
 			CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
 			GH.curInt = CGP;
 			break;
-		case FULLSCREEN_TOGGLED:
+		case EUserEvent::FULLSCREEN_TOGGLED:
 			fullScreenChanged();
 			break;
-		case INTERFACE_CHANGED:
+		case EUserEvent::INTERFACE_CHANGED:
 			if(LOCPLINT)
 				LOCPLINT->updateAmbientSounds();
 			break;
@@ -1318,7 +1318,7 @@ static void handleEvent(SDL_Event & ev)
 static void mainLoop()
 {
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
-	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, FULLSCREEN_TOGGLED); });
+	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::FULLSCREEN_TOGGLED); });
 
 	inGuiThread.reset(new bool(true));
 	GH.mainFPSmng->init();

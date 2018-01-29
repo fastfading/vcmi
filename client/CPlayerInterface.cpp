@@ -2517,7 +2517,7 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::requestReturningToMainMenu()
 {
-	sendCustomEvent(RETURN_TO_MAIN_MENU);
+	sendCustomEvent(EUserEvent::RETURN_TO_MAIN_MENU);
 	CCS->soundh->ambientStopAllChannels();
 	cb->unregisterAllInterfaces();
 }
@@ -2686,7 +2686,7 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim)
 
 void CPlayerInterface::proposeLoadingGame()
 {
-	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(RETURN_TO_MENU_LOAD); }, 0, false);
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [this](){ sendCustomEvent(EUserEvent::RETURN_TO_MENU_LOAD); }, 0, false);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

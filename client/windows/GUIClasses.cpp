@@ -605,7 +605,7 @@ void CSystemOptionsWindow::setGameRes(int index)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, FORCE_QUIT); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::FORCE_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -615,7 +615,7 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, RETURN_TO_MAIN_MENU); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU); }, 0);
 }
 
 void CSystemOptionsWindow::bloadf()
@@ -632,7 +632,7 @@ void CSystemOptionsWindow::bsavef()
 
 void CSystemOptionsWindow::brestartf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, RESTART_GAME); }, 0);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this](){ closeAndPushEvent(SDL_USEREVENT, EUserEvent::RESTART_GAME); }, 0);
 }
 
 void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code)

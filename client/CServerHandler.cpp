@@ -500,7 +500,7 @@ void CServerHandler::threadHandleConnection()
 		logNetwork->error(e.what());
 		if(client)
 		{
-			CGuiHandler::pushSDLEvent(SDL_USEREVENT, 2);//RETURN_TO_MAIN_MENU);
+			CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
 		}
 		else
 		{

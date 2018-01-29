@@ -22,6 +22,20 @@ class IShowable;
 enum class EIntObjMouseBtnType;
 template <typename T> struct CondSh;
 
+// TODO: event handling need refactoring
+enum EUserEvent
+{
+	/*CHANGE_SCREEN_RESOLUTION = 1,*/
+	RETURN_TO_MAIN_MENU = 2,
+	//STOP_CLIENT = 3,
+	RESTART_GAME = 4,
+	RETURN_TO_MENU_LOAD,
+	FULLSCREEN_TOGGLED,
+	PREPARE_RESTART_CAMPAIGN,
+	FORCE_QUIT, //quit client without question
+	INTERFACE_CHANGED
+};
+
 // A fps manager which holds game updates at a constant rate
 class CFramerateManager
 {
