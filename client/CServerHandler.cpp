@@ -47,6 +47,9 @@
 // To sent netpacks to client
 #include "Client.h"
 
+// FIXME: For pushing events
+#include "gui/CGuiHandler.h"
+
 template<typename T> class CApplyOnLobby;
 
 class CBaseForLobbyApply
@@ -97,7 +100,7 @@ public:
 extern std::string NAME;
 
 CServerHandler::CServerHandler()
-	: LobbyInfo(), threadRunLocalServer(nullptr), shm(nullptr), verbose(true), threadConnectionToServer(nullptr), mx(new boost::recursive_mutex), pauseNetpackRetrieving(false)
+	: LobbyInfo(), threadRunLocalServer(nullptr), shm(nullptr), verbose(true), threadConnectionToServer(nullptr), mx(new boost::recursive_mutex), pauseNetpackRetrieving(false), client(nullptr)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	applier = new CApplier<CBaseForLobbyApply>();
@@ -115,6 +118,7 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
 {
+	c.reset();
 	si.reset(new StartInfo());
 	playerNames.clear();
 	si->difficulty = 1;
@@ -494,8 +498,16 @@ void CServerHandler::threadHandleConnection()
 	{
 		logNetwork->error("Lost connection to server, ending listening thread!");
 		logNetwork->error(e.what());
+		if(client)
 		{
-//			logNetwork->error("Something wrong, lost connection while game is still ongoing...");
+			CGuiHandler::pushSDLEvent(SDL_USEREVENT, 2);//RETURN_TO_MAIN_MENU);
+		}
+		else
+		{
+			auto lcd = new LobbyClientDisconnected();
+			lcd->clientId = c->connectionID;
+			boost::unique_lock<boost::recursive_mutex> lock(*mx);
+			incomingPacks.push_back(lcd);
 		}
 	}
 	catch(...)

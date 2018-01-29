@@ -451,7 +451,7 @@ void CClient::handlePack(CPack * pack)
 
 void CClient::stopConnection()
 {
-	if(CSH->c)
+	if(CSH->c->connected)
 	{
 		if(CSH->isHost()) //request closing connection
 		{
