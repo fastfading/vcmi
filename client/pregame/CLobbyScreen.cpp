@@ -30,7 +30,6 @@ CLobbyScreen::CLobbyScreen(CMenuScreen::EState type, CMenuScreen::EGameMode game
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	tabSel = new SelectionTab(screenType, gameMode); //scenario selection tab
-	tabSel->recActions = DISPOSE; // MPTODO
 	tabSel->recActions = 255;
 	curTab = tabSel;
 
@@ -65,7 +64,7 @@ CLobbyScreen::CLobbyScreen(CMenuScreen::EState type, CMenuScreen::EGameMode game
 		buttonRMG->addCallback([&]()
 		{
 			toggleTab(tabRand);
-			tabRand->updateMapInfoByHost(); // MPTODO: This is only needed to force-update mapInfo in CSH when tab is opened
+			tabRand->updateMapInfoByHost(); // TODO: This is only needed to force-update mapInfo in CSH when tab is opened
 		});
 
 		card->difficulty->addCallback(std::bind(&IServerAPI::setDifficulty, CSH, _1));

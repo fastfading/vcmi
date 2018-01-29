@@ -416,7 +416,7 @@ void SelectionTab::select(int position)
 	else if(position >= positionsToShow)
 		slider->moveBy(position - positionsToShow + 1);
 
-	// MPTODO this can be more elegant
+	// TODO: this can be more elegant
 	if(tabType == CMenuScreen::newGame)
 	{
 		Settings lastMap = settings.write["session"]["lastMap"];

@@ -9,10 +9,14 @@
  */
 
 #include "StdInc.h"
-#include "CPreGame.h"
 #include "CSelectionBase.h"
 #include "CLobbyScreen.h"
+
 #include "OptionsTab.h"
+#include "OptionsTab.h"
+#include "RandomMapTab.h"
+#include "SelectionTab.h"
+
 #include "../CServerHandler.h"
 #include "../CGameInfo.h"
 #include "../gui/CGuiHandler.h"
@@ -20,10 +24,6 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/serializer/Connection.h"
 
-// MPTODO: Can this be avoided?
-#include "OptionsTab.h"
-#include "RandomMapTab.h"
-#include "SelectionTab.h"
 
 void startGame();
 
@@ -114,13 +114,11 @@ void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 	CSH->playerNames = playerNames;
 	CSH->si = startInfo;
 	if(CSH->mi && lobby->screenType != CMenuScreen::campaignList)
-		lobby->tabOpt->recreate(); //will force to recreate using current sInfo
+		lobby->tabOpt->recreate();
 
 	lobby->card->changeSelection();
 	lobby->card->difficulty->setSelected(startInfo->difficulty);
 
-	// MPTODO: idea is to always apply any changes on guest as well as on host
-	// Though applying of randMapTab options cause crash if host just decide to open it
 	if(lobby->curTab == lobby->tabRand && startInfo->mapGenOptions)
 		lobby->tabRand->setMapGenOptions(startInfo->mapGenOptions);
 
