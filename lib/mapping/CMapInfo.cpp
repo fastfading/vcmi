@@ -43,23 +43,6 @@ CMapInfo::CMapInfo() : scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
 
 }
 
-#define STEAL(x) x = std::move(tmp.x)
-
-CMapInfo::CMapInfo(CMapInfo & tmp):
-	scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
-	actualHumanPlayers(0), isRandomMap(false)
-{
-	std::swap(scenarioOpts, tmp.scenarioOpts);
-	STEAL(mapHeader);
-	STEAL(campaignHeader);
-	STEAL(fileURI);
-	STEAL(date);
-	STEAL(playerAmnt);
-	STEAL(humanPlayers);
-	STEAL(actualHumanPlayers);
-	STEAL(isRandomMap);
-}
-
 CMapInfo::~CMapInfo()
 {
 	vstd::clear_pointer(scenarioOpts);
@@ -75,20 +58,6 @@ void CMapInfo::mapInit(const std::string & fname)
 void CMapInfo::campaignInit()
 {
 	campaignHeader = std::unique_ptr<CCampaignHeader>(new CCampaignHeader(CCampaignHandler::getHeader(fileURI)));
-}
-
-CMapInfo & CMapInfo::operator=(CMapInfo &&tmp)
-{
-	STEAL(mapHeader);
-	STEAL(campaignHeader);
-	STEAL(scenarioOpts);
-	STEAL(fileURI);
-	STEAL(date);
-	STEAL(playerAmnt);
-	STEAL(humanPlayers);
-	STEAL(actualHumanPlayers);
-	STEAL(isRandomMap);
-	return *this;
 }
 
 #undef STEAL
