@@ -134,7 +134,7 @@ void CBonusSelection::show(SDL_Surface * to)
 	int ex = 629 + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[391]);
 	TeamID myT;
 	/*myT = getHeader()->players[myFirstColor().getNum()].team;
-	for(auto i = startInfo.playerInfos.cbegin(); i != startInfo.playerInfos.cend(); i++)
+	for(auto i = startIno.playerInfos.cbegin(); i != startInfo.playerInfos.cend(); i++)
 	{
 		int * myx = ((i->first == myFirstColor() || getHeader()->players[i->first.getNum()].team == myT) ? &fx : &ex);
 
@@ -601,14 +601,14 @@ void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 			backB->block(false);
 		}
 
-		CSH->setDifficulty(getCampaign()->camp->scenarios[mapNr].difficulty);
+//		CSH->setDifficulty(getCampaign()->camp->scenarios[mapNr].difficulty);
 		//MPTODO CSH->selectedMap = mapNr;
-		CSH->selectedBonus = boost::none;
+//		CSH->selectedBonus = boost::none;
 
 
 
-		std::map<ui8, std::string> names;
-		names[1] = settings["general"]["playerName"].String();
+//		std::map<ui8, std::string> names;
+//		names[1] = settings["general"]["playerName"].String();
 // MPTODO		CSH->updateStartInfo(ourCampaign->camp->header.filename, startInfo, getHeader(), names);
 
 		mapDescription->setText(getHeader()->description);
@@ -625,8 +625,9 @@ void CBonusSelection::selectBonus(int id)
 	// have to be undrawn/drawn.
 	if(!CSH->selectedBonus || *CSH->selectedBonus != id)
 	{
-		CSH->selectedBonus = boost::make_optional(id);
-		GH.totalRedraw();
+		CSH->setCampaignBonus(id);
+//		CSH->selectedBonus = boost::make_optional(id);
+//		GH.totalRedraw();
 
 		updateStartButtonState(id);
 	}

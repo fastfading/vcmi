@@ -117,6 +117,21 @@ bool LobbySetCampaign::applyOnServer(CVCMIServer * srv)
 	return true;
 }
 
+bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
+{
+	srv->selectedMap = mapId;
+	srv->si->difficulty = srv->si->campState->camp->scenarios[mapId].difficulty;
+	srv->selectedBonus = boost::none;
+
+	return true;
+}
+
+bool LobbySetCampaignBonus::applyOnServer(CVCMIServer * srv)
+{
+	srv->selectedBonus = bonusId;
+	return true;
+}
+
 bool LobbyGuiAction::checkClientPermissions(CVCMIServer * srv) const
 {
 	return srv->isClientHost(c->connectionID);

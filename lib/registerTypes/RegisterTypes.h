@@ -367,6 +367,8 @@ void registerTypesLobbyPacks(Serializer &s)
 	// Only for host client
 	s.template registerType<CLobbyPackToServer, LobbySetMap>();
 	s.template registerType<CLobbyPackToServer, LobbySetCampaign>();
+	s.template registerType<CLobbyPackToServer, LobbySetCampaignMap>();
+	s.template registerType<CLobbyPackToServer, LobbySetCampaignBonus>();
 	s.template registerType<CLobbyPackToServer, LobbySetPlayer>();
 	s.template registerType<CLobbyPackToServer, LobbySetTurnTime>();
 	s.template registerType<CLobbyPackToServer, LobbySetDifficulty>();
