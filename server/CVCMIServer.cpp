@@ -829,9 +829,9 @@ int main(int argc, char * argv[])
 #endif
 	// Installs a sig sev segmentation violation handler
 	// to log stacktrace
-    #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(VCMI_ANDROID)
 	signal(SIGSEGV, handleLinuxSignal);
-    #endif
+#endif
 
 	console = new CConsoleHandler();
 	CBasicLogConfigurator logConfig(VCMIDirs::get().userCachePath() / "VCMI_Server_log.txt", console);
@@ -889,6 +889,6 @@ int main(int argc, char * argv[])
 void CVCMIServer::create()
 {
 	const char * foo[1] = {"android-server"};
-	main(1, const_cast<char * *>(foo));
+	main(1, const_cast<char **>(foo));
 }
 #endif
