@@ -53,14 +53,13 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 	boost::recursive_mutex * mx;
 	std::list<CPackForLobby *> incomingPacks; //protected by mx
 
-	CStopWatch th;
-	bool verbose; //whether to print log msgs
 	std::vector<std::string> myNames;
 
 	void threadHandleConnection();
 	void threadRunServer();
 
 public:
+	std::unique_ptr<CStopWatch> th;
 	boost::thread * threadRunLocalServer;
 	boost::thread * threadConnectionToServer;
 	std::atomic<bool> disconnecting;

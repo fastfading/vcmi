@@ -129,12 +129,11 @@ void CClient::init()
 
 void CClient::newGame()
 {
-	CStopWatch tmh;
-	logNetwork->info("\tSending/Getting info to/from the server: %d ms", tmh.getDiff());
+	CSH->th->update();
 	gs = new CGameState();
-	logNetwork->info("\tCreating gamestate: %i", tmh.getDiff());
+	logNetwork->trace("\tCreating gamestate: %i", CSH->th->getDiff());
 	gs->init(CSH->si.get(), settings["general"]["saveRandomMaps"].Bool());
-	logNetwork->info("Initializing GameState (together): %d ms", tmh.getDiff());
+	logNetwork->trace("Initializing GameState (together): %d ms", CSH->th->getDiff());
 
 	initMapHandler();
 	initPlayerInterfaces();
@@ -177,6 +176,7 @@ void CClient::loadGame()
 		logGlobal->error("Cannot load game %s. Error: %s", CSH->si->mapname, e.what());
 		throw; //obviously we cannot continue here
 	}
+	logNetwork->trace("Loaded common part of save %d ms", CSH->th->getDiff());
 
 	initMapHandler();
 	serialize(loader->serializer, loader->serializer.fileVersion);
@@ -261,6 +261,7 @@ void CClient::serialize(BinaryDeserializer & h, const int version)
 		}
 		nInt.reset();
 	}
+	logNetwork->trace("Loaded client part of save %d ms", CSH->th->getDiff());
 }
 
 void CClient::save(const std::string & fname)
@@ -328,7 +329,9 @@ void CClient::initMapHandler()
 	{
 		const_cast<CGameInfo *>(CGI)->mh = new CMapHandler();
 		CGI->mh->map = gs->map;
+		logNetwork->trace("Creating mapHandler: %d ms", CSH->th->getDiff());
 		CGI->mh->init();
+		logNetwork->trace("Initializing mapHandler (together): %d ms", CSH->th->getDiff());
 	}
 	pathInfo = make_unique<CPathsInfo>(getMapSize());
 }
@@ -364,6 +367,8 @@ void CClient::initPlayerInterfaces()
 
 	if(CSH->getAllClientPlayers(CSH->c->connectionID).count(PlayerColor::NEUTRAL))
 		installNewBattleInterface(CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String()), PlayerColor::NEUTRAL);
+
+	logNetwork->trace("Initialized player interfaces %d ms", CSH->th->getDiff());
 }
 
 std::string CClient::aiNameForPlayer(const PlayerSettings & ps, bool battleAI)

@@ -100,7 +100,7 @@ public:
 extern std::string NAME;
 
 CServerHandler::CServerHandler()
-	: LobbyInfo(), threadRunLocalServer(nullptr), shm(nullptr), verbose(true), threadConnectionToServer(nullptr), mx(new boost::recursive_mutex), pauseNetpackRetrieving(false), client(nullptr), disconnecting(false)
+	: LobbyInfo(), threadRunLocalServer(nullptr), shm(nullptr), threadConnectionToServer(nullptr), mx(new boost::recursive_mutex), pauseNetpackRetrieving(false), client(nullptr), disconnecting(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	applier = new CApplier<CBaseForLobbyApply>();
@@ -118,6 +118,7 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
 {
+	th = make_unique<CStopWatch>();
 	disconnecting = false;
 	incomingPacks.clear();
 	c.reset();
@@ -161,18 +162,16 @@ void CServerHandler::startLocalServerAndConnect()
 	if(threadRunLocalServer)
 		threadRunLocalServer->join();
 
-	th.update();
-
+	th->update();
 #ifdef VCMI_ANDROID
 	CAndroidVMHelper envHelper;
 	envHelper.callStaticVoidMethod(CAndroidVMHelper::NATIVE_METHODS_DEFAULT_CLASS, "startServer", true);
 #else
 	threadRunLocalServer = new boost::thread(&CServerHandler::threadRunServer, this); //runs server executable;
 #endif
-	if(verbose)
-		logNetwork->info("Setting up thread calling server: %d ms", th.getDiff());
+	logNetwork->trace("Setting up thread calling server: %d ms", th->getDiff());
 
-	th.update();
+	th->update();
 
 #ifndef VCMI_ANDROID
 	if(shm)
@@ -187,10 +186,9 @@ void CServerHandler::startLocalServerAndConnect()
 	logNetwork->info("waiting for server finished...");
 	androidTestServerReadyFlag = false;
 #endif
-	if(verbose)
-		logNetwork->info("Waiting for server: %d ms", th.getDiff());
+	logNetwork->trace("Waiting for server: %d ms", th->getDiff());
 
-	th.update(); //put breakpoint here to attach to server before it does something stupid
+	th->update(); //put breakpoint here to attach to server before it does something stupid
 
 #ifndef VCMI_ANDROID
 	justConnectToServer(settings["server"]["server"].String(), shm ? shm->sr->port : 0);
@@ -198,8 +196,7 @@ void CServerHandler::startLocalServerAndConnect()
 	justConnectToServer(settings["server"]["server"].String());
 #endif
 
-	if(verbose)
-		logNetwork->info("\tConnecting to the server: %d ms", th.getDiff());
+	logNetwork->trace("\tConnecting to the server: %d ms", th->getDiff());
 }
 
 void CServerHandler::justConnectToServer(const std::string & addr, const ui16 port)
