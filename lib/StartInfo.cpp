@@ -7,8 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-#pragma once
-
+#include "StdInc.h"
 #include "StartInfo.h"
 
 
@@ -93,4 +92,60 @@ std::vector<ui8> LobbyInfo::getConnectedPlayerIdsForClient(int clientId) const
 		}
 	}
 	return ids;
+}
+
+std::set<PlayerColor> LobbyInfo::clientHumanColors(int clientId)
+{
+	std::set<PlayerColor> players;
+	for(auto & elem : si->playerInfos)
+	{
+		for(ui8 id : elem.second.connectedPlayerIDs)
+		{
+			if(vstd::contains(getConnectedPlayerIdsForClient(clientId), id))
+			{
+				players.insert(elem.first);
+			}
+		}
+	}
+
+	return players;
+}
+
+
+PlayerColor LobbyInfo::clientFirstColor(int clientId) const
+{
+	for(auto & pair : si->playerInfos)
+	{
+		if(isClientColor(clientId, pair.first))
+			return pair.first;
+	}
+
+	return PlayerColor::CANNOT_DETERMINE;
+}
+
+bool LobbyInfo::isClientColor(int clientId, PlayerColor color) const
+{
+	if(si->playerInfos.find(color) != si->playerInfos.end())
+	{
+		for(ui8 id : si->playerInfos.find(color)->second.connectedPlayerIDs)
+		{
+			if(playerNames.find(id) != playerNames.end())
+			{
+				if(playerNames.find(id)->second.connection == clientId)
+					return true;
+			}
+		}
+	}
+	return false;
+}
+
+ui8 LobbyInfo::clientFirstId(int clientId) const
+{
+	for(auto & pair : playerNames)
+	{
+		if(pair.second.connection == clientId)
+			return pair.first;
+	}
+
+	return 0;
 }

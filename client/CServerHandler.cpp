@@ -252,58 +252,23 @@ void CServerHandler::stopServerConnection()
 
 std::set<PlayerColor> CServerHandler::getHumanColors()
 {
-	std::set<PlayerColor> players;
-	for(auto & elem : si->playerInfos)
-	{
-		for(ui8 id : elem.second.connectedPlayerIDs)
-		{
-			if(vstd::contains(getConnectedPlayerIdsForClient(c->connectionID), id))
-			{
-				players.insert(elem.first);
-			}
-		}
-	}
-
-	return players;
+	return clientHumanColors(c->connectionID);
 }
 
 
 PlayerColor CServerHandler::myFirstColor() const
 {
-	for(auto & pair : si->playerInfos)
-	{
-		if(isMyColor(pair.first))
-			return pair.first;
-	}
-
-	return PlayerColor::CANNOT_DETERMINE;
+	return clientFirstColor(c->connectionID);
 }
 
 bool CServerHandler::isMyColor(PlayerColor color) const
 {
-	if(si->playerInfos.find(color) != si->playerInfos.end())
-	{
-		for(ui8 id : si->playerInfos.find(color)->second.connectedPlayerIDs)
-		{
-			if(c && playerNames.find(id) != playerNames.end())
-			{
-				if(playerNames.find(id)->second.connection == c->connectionID)
-					return true;
-			}
-		}
-	}
-	return false;
+	return isClientColor(c->connectionID, color);
 }
 
 ui8 CServerHandler::myFirstId() const
 {
-	for(auto & pair : playerNames)
-	{
-		if(pair.second.connection == c->connectionID)
-			return pair.first;
-	}
-
-	return 0;
+	return clientFirstId(c->connectionID);
 }
 
 bool CServerHandler::isServerLocal() const

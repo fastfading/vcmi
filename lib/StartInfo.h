@@ -150,4 +150,10 @@ struct DLL_LINKAGE LobbyInfo
 	//MPTODO: this function has dupe i suppose
 	std::set<PlayerColor> getAllClientPlayers(int clientId);
 	std::vector<ui8> getConnectedPlayerIdsForClient(int clientId) const;
+
+	// Helpers for lobby state access
+	std::set<PlayerColor> clientHumanColors(int clientId);
+	PlayerColor clientFirstColor(int clientId) const;
+	bool isClientColor(int clientId, PlayerColor color) const;
+	ui8 clientFirstId(int clientId) const; // Used by chat only!
 };
