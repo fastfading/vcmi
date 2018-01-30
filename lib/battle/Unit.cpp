@@ -60,9 +60,9 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex
 			for(BattleHex::EDir dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
 				BattleHex::checkAndPush(position.cloneInDirection(dir, false), hexes);
 
-			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT), hexes);
-			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::LEFT), hexes);
-			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::TOP_LEFT), hexes);
+			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), hexes);
+			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::LEFT, false), hexes);
+			BattleHex::checkAndPush(otherHex.cloneInDirection(BattleHex::EDir::TOP_LEFT, false), hexes);
 		}
 		else
 		{
@@ -71,8 +71,8 @@ std::vector<BattleHex> Unit::getSurroundingHexes(BattleHex position, bool twoHex
 			for(BattleHex::EDir dir = BattleHex::EDir(0); dir <= BattleHex::EDir(4); dir = BattleHex::EDir(dir+1))
 				BattleHex::checkAndPush(otherHex.cloneInDirection(dir, false), hexes);
 
-			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT), hexes);
-			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::LEFT), hexes);
+			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::BOTTOM_LEFT, false), hexes);
+			BattleHex::checkAndPush(position.cloneInDirection(BattleHex::EDir::LEFT, false), hexes);
 		}
 		return hexes;
 	}

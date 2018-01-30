@@ -20,6 +20,24 @@ TEST(battle_Unit_getSurroundingHexes, oneWide)
 	EXPECT_EQ(actual, position.neighbouringTiles());
 }
 
+TEST(battle_Unit_getSurroundingHexes, oneWideLeftCorner)
+{
+	BattleHex position(34);
+
+	auto actual = battle::Unit::getSurroundingHexes(position, false, 0);
+
+	EXPECT_EQ(actual, position.neighbouringTiles());
+}
+
+TEST(battle_Unit_getSurroundingHexes, oneWideRightCorner)
+{
+	BattleHex position(117);
+
+	auto actual = battle::Unit::getSurroundingHexes(position, false, 0);
+
+	EXPECT_EQ(actual, position.neighbouringTiles());
+}
+
 TEST(battle_Unit_getSurroundingHexes, doubleWideAttacker)
 {
 	BattleHex position(77);
@@ -40,6 +58,69 @@ TEST(battle_Unit_getSurroundingHexes, doubleWideAttacker)
 
 	EXPECT_EQ(actual, expected);
 }
+
+TEST(battle_Unit_getSurroundingHexes, doubleWideLeftCorner)
+{
+	BattleHex position(52);
+
+	auto actualAtt = battle::Unit::getSurroundingHexes(position, true, BattleSide::ATTACKER);
+
+	static const std::vector<BattleHex> expectedAtt =
+	{
+		35,
+		53,
+		69
+	};
+
+	EXPECT_EQ(actualAtt, expectedAtt);
+
+	auto actualDef = battle::Unit::getSurroundingHexes(position, true, BattleSide::DEFENDER);
+
+	static const std::vector<BattleHex> expectedDef =
+	{
+		35,
+		36,
+		54,
+		70,
+		69
+	};
+	EXPECT_EQ(actualDef, expectedDef);
+}
+
+
+TEST(battle_Unit_getSurroundingHexes, doubleWideRightCorner)
+{
+	BattleHex position(134);
+
+	auto actualAtt = battle::Unit::getSurroundingHexes(position, true, BattleSide::ATTACKER);
+
+	static const std::vector<BattleHex> expectedAtt =
+	{
+		116,
+		117,
+		151,
+		150,
+		149,
+		132,
+		115
+	};
+
+	EXPECT_EQ(actualAtt, expectedAtt);
+
+	auto actualDef = battle::Unit::getSurroundingHexes(position, true, BattleSide::DEFENDER);
+
+	static const std::vector<BattleHex> expectedDef =
+	{
+		116,
+		117,
+		151,
+		150,
+		133
+	};
+
+	EXPECT_EQ(actualDef, expectedDef);
+}
+
 
 TEST(battle_Unit_getSurroundingHexes, doubleWideDefender)
 {

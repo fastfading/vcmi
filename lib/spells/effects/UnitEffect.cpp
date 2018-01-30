@@ -199,17 +199,17 @@ EffectTarget UnitEffect::transformTargetByRange(const Mechanics * m, const Targe
 
 EffectTarget UnitEffect::transformTargetByChain(const Mechanics * m, const Target & aimPoint, const Target & spellTarget) const
 {
-	if(aimPoint.empty())
+	EffectTarget byRange = transformTargetByRange(m, aimPoint, spellTarget);
+
+	if(byRange.empty())
 	{
-		logGlobal->error("Chain effect with no target");
 		return EffectTarget();
 	}
 
-	const Destination & mainDestination = aimPoint.front();
+	const Destination & mainDestination = byRange.front();
 
 	if(!mainDestination.hexValue.isValid())
 	{
-		logGlobal->error("Chain effect with invalid target");
 		return EffectTarget();
 	}
 
