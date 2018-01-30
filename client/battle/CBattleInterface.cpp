@@ -3644,45 +3644,32 @@ IImage * CBattleInterface::getObstacleImage(const CObstacleInstance & oi)
 	}
 	else if(oi.obstacleType == CObstacleInstance::SPELL_CREATED)
 	{
-		auto iter = obstacleAnimations.find(oi.uniqueID);
+		const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(&oi);
+		if(!spellObstacle)
+			return nullptr;
 
-		if(iter == obstacleAnimations.end())
+		std::string animationName = spellObstacle->animation;
+
+		auto cacheIter = animationsCache.find(animationName);
+
+		if(cacheIter == animationsCache.end())
 		{
-			const SpellCreatedObstacle * spellObstacle = dynamic_cast<const SpellCreatedObstacle *>(&oi);
-			if(!spellObstacle)
-				return nullptr;
-
-			std::string animationName = spellObstacle->animation;
-
 			logAi->trace("Creating obstacle animation %s", animationName);
 
-			auto cacheIter = animationsCache.find(animationName);
-
-			if(cacheIter == animationsCache.end())
-			{
-				animation = std::make_shared<CAnimation>(animationName);
-				animation->preload();
-				animationsCache[animationName] = animation;
-			}
-			else
-			{
-				animation = cacheIter->second;
-			}
-
-			obstacleAnimations[oi.uniqueID] = animation;
+			animation = std::make_shared<CAnimation>(animationName);
+			animation->preload();
+			animationsCache[animationName] = animation;
 		}
 		else
 		{
-			animation = iter->second;
+			animation = cacheIter->second;
 		}
 	}
-
 
 	if(animation)
 	{
 		frameIndex %= animation->size(0);
-		IImage * image = animation->getImage(frameIndex, 0);
-		return image;
+		return animation->getImage(frameIndex, 0);
 	}
 
 	return nullptr;

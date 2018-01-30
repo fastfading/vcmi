@@ -52,7 +52,11 @@ void BattleHex::setY(si16 y)
 void BattleHex::setXY(si16 x, si16 y, bool hasToBeValid)
 {
 	if(hasToBeValid)
-		assert(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0 && y < GameConstants::BFIELD_HEIGHT);
+	{
+		if(!(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0 && y < GameConstants::BFIELD_HEIGHT))
+			throw std::runtime_error("Valid hex required");
+	}
+
 	hex = x + y * GameConstants::BFIELD_WIDTH;
 }
 
