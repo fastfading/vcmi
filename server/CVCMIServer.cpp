@@ -524,9 +524,7 @@ void CVCMIServer::updateAndPropagateLobbyState()
 	}
 
 	auto lus = new LobbyUpdateState();
-	lus->mapInfo = mi;
-	lus->startInfo = si;
-	lus->playerNames = playerNames;
+	lus->state = *this;
 	addToAnnounceQueue(lus);
 }
 

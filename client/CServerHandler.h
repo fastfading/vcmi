@@ -93,6 +93,9 @@ public:
 	// Lobby server API for UI
 	void sendClientConnecting() override;
 	void sendClientDisconnecting() override;
+	void setCampaignState(std::shared_ptr<CCampaignState> newCampaign);
+	void setCampaignMap(int mapId);
+	void setCampaignBonus(int bonusId);
 	void setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts = {}) override;
 	void setPlayer(PlayerColor color) override;
 	void setPlayerOption(ui8 what, ui8 dir, PlayerColor player) override;

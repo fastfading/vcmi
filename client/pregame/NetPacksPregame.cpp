@@ -109,21 +109,15 @@ void LobbyChangeHost::applyOnLobby(CLobbyScreen * lobby)
 
 void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 {
-	if(mapInfo)
-		CSH->mi = mapInfo;
-	else
-		CSH->mi.reset();
-
-	CSH->playerNames = playerNames;
-	CSH->si = startInfo;
+	static_cast<LobbyState &>(*CSH) = state;
 	if(CSH->mi && lobby->screenType != CMenuScreen::campaignList)
 		lobby->tabOpt->recreate();
 
 	lobby->card->changeSelection();
-	lobby->card->difficulty->setSelected(startInfo->difficulty);
+	lobby->card->difficulty->setSelected(CSH->si->difficulty);
 
-	if(lobby->curTab == lobby->tabRand && startInfo->mapGenOptions)
-		lobby->tabRand->setMapGenOptions(startInfo->mapGenOptions);
+	if(lobby->curTab == lobby->tabRand && CSH->si->mapGenOptions)
+		lobby->tabRand->setMapGenOptions(CSH->si->mapGenOptions);
 
 	GH.totalRedraw();
 }

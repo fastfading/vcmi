@@ -23,8 +23,10 @@ struct StartInfo;
 class CBonusSelection : public CIntObject
 {
 public:
+	std::shared_ptr<CCampaignState> getCampaign();
+	std::shared_ptr<CMapHeader> getHeader();
 	CBonusSelection(const std::string & campaignFName);
-	CBonusSelection(std::shared_ptr<CCampaignState> _ourCampaign);
+	CBonusSelection(std::shared_ptr<CCampaignState> ourCampaign);
 	~CBonusSelection();
 
 	void showAll(SDL_Surface * to) override;
@@ -64,7 +66,7 @@ private:
 		void clickRight(tribool down, bool previousState) override;
 	};
 
-	void init();
+	void init(std::shared_ptr<CCampaignState> ourCampaign);
 	void loadPositionsOfGraphics();
 	void updateStartButtonState(int selected = -1); //-1 -- no bonus is selected
 	void updateBonusSelection();
@@ -92,11 +94,4 @@ private:
 	CButton * buttonDifficultyRight;
 	CAnimImage * mapSizeIcons;
 	std::shared_ptr<CAnimation> sFlags;
-
-	// Data
-	std::shared_ptr<CCampaignState> ourCampaign;
-	int selectedMap;
-	boost::optional<int> selectedBonus;
-	StartInfo startInfo;
-	std::unique_ptr<CMapHeader> ourHeader;
 };

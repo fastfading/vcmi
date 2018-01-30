@@ -317,6 +317,27 @@ void CServerHandler::sendClientDisconnecting()
 	c->sendPack(&lcd);
 }
 
+void CServerHandler::setCampaignState(std::shared_ptr<CCampaignState> newCampaign)
+{
+	LobbySetCampaign lsc;
+	lsc.ourCampaign = newCampaign;
+	c->sendPack(&lsc);
+}
+
+void CServerHandler::setCampaignMap(int mapId)
+{
+	LobbySetCampaignMap lscm;
+	lscm.mapId = mapId;
+	c->sendPack(&lscm);
+}
+
+void CServerHandler::setCampaignBonus(int bonusId)
+{
+	LobbySetCampaignBonus lscb;
+	lscb.bonusId = bonusId;
+	c->sendPack(&lscb);
+}
+
 void CServerHandler::setMapInfo(std::shared_ptr<CMapInfo> to, std::shared_ptr<CMapGenOptions> mapGenOpts)
 {
 	LobbySetMap lsm;

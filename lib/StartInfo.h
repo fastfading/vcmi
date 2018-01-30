@@ -136,15 +136,34 @@ struct ClientPlayer
 	}
 };
 
-struct DLL_LINKAGE LobbyInfo
+struct LobbyState
 {
-	std::string uuid;
 	std::shared_ptr<StartInfo> si;
 	std::shared_ptr<CMapInfo> mi;
 	std::map<ui8, ClientPlayer> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
 	int hostClientId;
+	// Campaign-only
+	int selectedMap;
+	boost::optional<int> selectedBonus;
 
-	LobbyInfo() : mi(nullptr), si(new StartInfo()), hostClientId(-1) {}
+	LobbyState() : si(new StartInfo()), hostClientId(-1), selectedMap(-1) {}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & si;
+		h & mi;
+		h & playerNames;
+		h & hostClientId;
+		h & selectedMap;
+		h & selectedBonus;
+	}
+};
+
+struct DLL_LINKAGE LobbyInfo : public LobbyState
+{
+	std::string uuid;
+
+	LobbyInfo() : LobbyState() {}
 
 	bool isClientHost(int clientId) const;
 	//MPTODO: this function has dupe i suppose

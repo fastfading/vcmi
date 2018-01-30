@@ -16,6 +16,9 @@
 #include "../lib/serializer/Connection.h"
 #include "../lib/StartInfo.h"
 
+// Campaigns
+#include "../lib/mapping/CCampaignHandler.h"
+
 bool CLobbyPackToServer::checkClientPermissions(CVCMIServer * srv) const
 {
 	return srv->isClientHost(c->connectionID);
@@ -102,6 +105,15 @@ bool LobbyChatMessage::checkClientPermissions(CVCMIServer * srv) const
 bool LobbySetMap::applyOnServer(CVCMIServer * srv)
 {
 	srv->updateStartInfoOnMapChange(mapInfo, mapGenOpts);
+	return true;
+}
+
+bool LobbySetCampaign::applyOnServer(CVCMIServer * srv)
+{
+	srv->si->mapname = ourCampaign->camp->header.filename;
+	srv->si->mode = StartInfo::CAMPAIGN;
+	srv->si->campState = ourCampaign;
+	srv->si->turnTime = 0;
 	return true;
 }
 

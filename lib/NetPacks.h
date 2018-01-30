@@ -2594,18 +2594,14 @@ struct LobbyChangeHost : public CLobbyPackToPropagate
 
 struct LobbyUpdateState : public CLobbyPackToPropagate
 {
-	std::shared_ptr<CMapInfo> mapInfo;
-	std::shared_ptr<StartInfo> startInfo;
-	std::map<ui8, ClientPlayer> playerNames;
+	LobbyState state;
 
 	LobbyUpdateState() {}
 	void applyOnLobby(CLobbyScreen * lobby);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & mapInfo;
-		h & startInfo;
-		h & playerNames;
+		h & state;
 	}
 };
 
@@ -2621,6 +2617,45 @@ struct LobbySetMap : public CLobbyPackToServer
 	{
 		h & mapInfo;
 		h & mapGenOpts;
+	}
+};
+
+struct LobbySetCampaign : public CLobbyPackToServer
+{
+	std::shared_ptr<CCampaignState> ourCampaign;
+
+	LobbySetCampaign() {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ourCampaign;
+	}
+};
+
+struct LobbySetCampaignMap : public CLobbyPackToServer
+{
+	int mapId;
+
+	LobbySetCampaignMap() : mapId(-1) {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & mapId;
+	}
+};
+
+struct LobbySetCampaignBonus : public CLobbyPackToServer
+{
+	int bonusId;
+
+	LobbySetCampaignBonus() : bonusId(-1) {}
+	bool applyOnServer(CVCMIServer * srv);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & bonusId;
 	}
 };
 
