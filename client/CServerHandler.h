@@ -65,6 +65,7 @@ class CServerHandler : public IServerAPI, public LobbyInfo
 public:
 	boost::thread * threadRunLocalServer;
 	boost::thread * threadConnectionToServer;
+	std::atomic<bool> disconnecting;
 	std::atomic<bool> pauseNetpackRetrieving;
 
 	std::shared_ptr<CConnection> c;

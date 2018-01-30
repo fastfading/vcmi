@@ -223,9 +223,7 @@ void CVCMIServer::prepareToStartGame()
 
 	case StartInfo::LOAD_GAME:
 		logNetwork->info("Preparing to start loaded game");
-		CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(si->mapname, EResType::SERVER_SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
-		gh->loadCommonState(lf);
-		lf >> gh; // MPTODO: not pointer loading? Will crash loading?
+		gh->load(si->mapname);
 		break;
 	}
 	gh->conns = connections;

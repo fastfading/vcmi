@@ -100,7 +100,7 @@ public:
 extern std::string NAME;
 
 CServerHandler::CServerHandler()
-	: LobbyInfo(), threadRunLocalServer(nullptr), shm(nullptr), verbose(true), threadConnectionToServer(nullptr), mx(new boost::recursive_mutex), pauseNetpackRetrieving(false), client(nullptr)
+	: LobbyInfo(), threadRunLocalServer(nullptr), shm(nullptr), verbose(true), threadConnectionToServer(nullptr), mx(new boost::recursive_mutex), pauseNetpackRetrieving(false), client(nullptr), disconnecting(false)
 {
 	uuid = boost::uuids::to_string(boost::uuids::random_generator()());
 	applier = new CApplier<CBaseForLobbyApply>();
@@ -118,6 +118,8 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::resetStateForLobby(const StartInfo::EMode mode, const std::vector<std::string> * names)
 {
+	disconnecting = false;
+	incomingPacks.clear();
 	c.reset();
 	si.reset(new StartInfo());
 	playerNames.clear();
@@ -346,6 +348,7 @@ void CServerHandler::sendClientConnecting()
 
 void CServerHandler::sendClientDisconnecting()
 {
+	disconnecting = true;
 	LobbyClientDisconnected lcd;
 	lcd.clientId = c->connectionID;
 	lcd.shutdownServer = isServerLocal();
@@ -496,18 +499,25 @@ void CServerHandler::threadHandleConnection()
 	//catch only asio exceptions
 	catch(const boost::system::system_error & e)
 	{
-		logNetwork->error("Lost connection to server, ending listening thread!");
-		logNetwork->error(e.what());
-		if(client)
+		if(disconnecting)
 		{
-			CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
+			logNetwork->info("Successfully closed connection to server, ending listening thread!");
 		}
 		else
 		{
-			auto lcd = new LobbyClientDisconnected();
-			lcd->clientId = c->connectionID;
-			boost::unique_lock<boost::recursive_mutex> lock(*mx);
-			incomingPacks.push_back(lcd);
+			logNetwork->error("Lost connection to server, ending listening thread!");
+			logNetwork->error(e.what());
+			if(client)
+			{
+				CGuiHandler::pushSDLEvent(SDL_USEREVENT, EUserEvent::RETURN_TO_MAIN_MENU);
+			}
+			else
+			{
+				auto lcd = new LobbyClientDisconnected();
+				lcd->clientId = c->connectionID;
+				boost::unique_lock<boost::recursive_mutex> lock(*mx);
+				incomingPacks.push_back(lcd);
+			}
 		}
 	}
 	catch(...)

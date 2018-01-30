@@ -35,7 +35,7 @@ CSavingScreen::CSavingScreen()
 	localMi->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
 
 	tabSel = new SelectionTab(screenType); //scenario selection tab
-	tabSel->recActions = DISPOSE;
+	tabSel->recActions = 255;
 	curTab = tabSel;
 
 	tabSel->onSelect = std::bind(&CSavingScreen::changeSelection, this, _1);

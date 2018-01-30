@@ -453,6 +453,7 @@ void CClient::stopConnection()
 {
 	if(CSH->c->connected)
 	{
+		CSH->disconnecting = true;
 		if(CSH->isHost()) //request closing connection
 		{
 			logNetwork->info("Connection has been requested to be closed.");

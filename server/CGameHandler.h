@@ -227,6 +227,8 @@ public:
 	bool disbandCreature( ObjectInstanceID id, SlotID pos );
 	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player);
 	void save(const std::string &fname);
+	void load(const std::string &fname);
+
 	void close();
 	void playerLeftGame(int cid);
 	void handleTimeEvents();

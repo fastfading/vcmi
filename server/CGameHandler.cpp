@@ -2574,7 +2574,7 @@ void CGameHandler::sendAndApply(NewStructures * info)
 
 void CGameHandler::save(const std::string & filename)
 {
-	logGlobal->info("Saving to %s", filename);
+	logGlobal->info("Loading from %s", filename);
 	const auto stem	= FileInfo::GetPathStem(filename);
 	const auto savefname = stem.to_string() + ".vsgm1";
 	CResourceHandler::get("local")->createResource(savefname);
@@ -2598,6 +2598,28 @@ void CGameHandler::save(const std::string & filename)
 	catch(std::exception &e)
 	{
 		logGlobal->error("Failed to save game: %s", e.what());
+	}
+}
+
+void CGameHandler::load(const std::string & filename)
+{
+	logGlobal->info("Saving to %s", filename);
+	const auto stem	= FileInfo::GetPathStem(filename);
+	const auto savefname = stem.to_string() + ".vsgm1";
+
+	try
+	{
+		{
+			CLoadFile lf(*CResourceHandler::get("local")->getResourceName(ResourceID(stem.to_string(), EResType::SERVER_SAVEGAME)), MINIMAL_SERIALIZATION_VERSION);
+			loadCommonState(lf);
+			logGlobal->info("Loading server state");
+			lf >> *this;
+		}
+		logGlobal->info("Game has been successfully loaded!");
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->error("Failed to load game: %s", e.what());
 	}
 }
 
