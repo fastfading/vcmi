@@ -121,15 +121,15 @@ bool LobbySetCampaign::applyOnServer(CVCMIServer * srv)
 
 bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
 {
-	srv->selectedMap = mapId;
+	srv->campaignMap = mapId;
 	srv->si->difficulty = srv->si->campState->camp->scenarios[mapId].difficulty;
-	srv->selectedBonus = -1;
+	srv->campaignBonus = -1;
 
 	/////
 	std::string scenarioName = srv->si->campState->camp->header.filename.substr(0, srv->si->campState->camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(srv->selectedMap);
-	std::string & headerStr = srv->si->campState->camp->mapPieces.find(srv->selectedMap)->second;
+	scenarioName += ':' + boost::lexical_cast<std::string>(srv->campaignMap);
+	std::string & headerStr = srv->si->campState->camp->mapPieces.find(srv->campaignMap)->second;
 	auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
 	/////
 
@@ -145,9 +145,9 @@ bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
 
 bool LobbySetCampaignBonus::applyOnServer(CVCMIServer * srv)
 {
-	srv->selectedBonus = bonusId;
+	srv->campaignBonus = bonusId;
 
-	const CCampaignScenario & scenario = srv->si->campState->camp->scenarios[srv->selectedMap];
+	const CCampaignScenario & scenario = srv->si->campState->camp->scenarios[srv->campaignMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	if(bonDescs[bonusId].type == CScenarioTravel::STravelBonus::HERO)
 	{

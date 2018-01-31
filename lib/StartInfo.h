@@ -143,10 +143,10 @@ struct LobbyState
 	std::map<ui8, ClientPlayer> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
 	int hostClientId;
 	// Campaign-only
-	int selectedMap;
-	int selectedBonus;
+	int campaignMap;
+	int campaignBonus;
 
-	LobbyState() : si(new StartInfo()), hostClientId(-1), selectedMap(0), selectedBonus(-1) {}
+	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(0), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -154,8 +154,8 @@ struct LobbyState
 		h & mi;
 		h & playerNames;
 		h & hostClientId;
-		h & selectedMap;
-		h & selectedBonus;
+		h & campaignMap;
+		h & campaignBonus;
 	}
 };
 

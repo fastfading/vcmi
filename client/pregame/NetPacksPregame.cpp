@@ -129,7 +129,7 @@ void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 	{
 		// From ::selectMap
 		// initialize restart / start button
-		if(!lobby->bonusSel->getCampaign()->currentMap || *lobby->bonusSel->getCampaign()->currentMap != CSH->selectedMap)
+		if(!lobby->bonusSel->getCampaign()->currentMap || *lobby->bonusSel->getCampaign()->currentMap != CSH->campaignMap)
 		{
 			// draw start button
 			lobby->bonusSel->buttonRestart->disable();
@@ -151,7 +151,7 @@ void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 		lobby->bonusSel->updateBonusSelection();
 
 		// From ::selectBonus
-		lobby->bonusSel->updateStartButtonState(CSH->selectedBonus);
+		lobby->bonusSel->updateStartButtonState(CSH->campaignBonus);
 	}
 	else
 	{

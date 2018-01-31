@@ -59,10 +59,10 @@ std::shared_ptr<CMapHeader> CBonusSelection::getHeader()
 {
 	std::string scenarioName = getCampaign()->camp->header.filename.substr(0, getCampaign()->camp->header.filename.find('.'));
 	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(CSH->selectedMap);
+	scenarioName += ':' + boost::lexical_cast<std::string>(CSH->campaignMap);
 
 	//get header
-	std::string & headerStr = getCampaign()->camp->mapPieces.find(CSH->selectedMap)->second;
+	std::string & headerStr = getCampaign()->camp->mapPieces.find(CSH->campaignMap)->second;
 	auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
 	return CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName);
 }
@@ -299,7 +299,7 @@ void CBonusSelection::updateStartButtonState(int selected)
 {
 	if(selected == -1)
 	{
-		buttonStart->block(getCampaign()->camp->scenarios[CSH->selectedMap].travelOptions.bonusesToChoose.size());
+		buttonStart->block(getCampaign()->camp->scenarios[CSH->campaignMap].travelOptions.bonusesToChoose.size());
 	}
 	else if(buttonStart->isBlocked())
 	{
@@ -321,7 +321,7 @@ void CBonusSelection::updateBonusSelection()
 	//resource - BORES.DEF
 	//player - CREST58.DEF
 	//hero - PORTRAITSLARGE (HPL###.BMPs)
-	const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->selectedMap];
+	const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->campaignMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
 	updateStartButtonState(-1);
@@ -506,17 +506,17 @@ void CBonusSelection::updateBonusSelection()
 	}
 
 	// set bonus if already chosen
-	if(vstd::contains(getCampaign()->chosenCampaignBonuses, CSH->selectedMap))
+	if(vstd::contains(getCampaign()->chosenCampaignBonuses, CSH->campaignMap))
 	{
-		bonuses->setSelected(getCampaign()->chosenCampaignBonuses[CSH->selectedMap]);
+		bonuses->setSelected(getCampaign()->chosenCampaignBonuses[CSH->campaignMap]);
 	}
 }
 
 void CBonusSelection::updateCampaignState()
 {
-	getCampaign()->currentMap = boost::make_optional(CSH->selectedMap);
-	if(CSH->selectedBonus)
-		getCampaign()->chosenCampaignBonuses[CSH->selectedMap] = CSH->selectedBonus;
+	getCampaign()->currentMap = boost::make_optional(CSH->campaignMap);
+	if(CSH->campaignBonus)
+		getCampaign()->chosenCampaignBonuses[CSH->campaignMap] = CSH->campaignBonus;
 }
 
 void CBonusSelection::goBack()
@@ -530,12 +530,12 @@ void CBonusSelection::startMap()
 	{
 		auto exitCb = [=]()
 		{
-			logGlobal->info("Starting scenario %d", CSH->selectedMap);
+			logGlobal->info("Starting scenario %d", CSH->campaignMap);
 			CSH->sendStartGame();
 //			CGP->showLoadingScreen(std::bind(&startGame));
 		};
 
-		const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->selectedMap];
+		const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->campaignMap];
 		if(scenario.prolog.hasPrologEpilog)
 		{
 			GH.pushInt(new CPrologEpilogVideo(scenario.prolog, exitCb));
