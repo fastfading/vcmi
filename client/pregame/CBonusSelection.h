@@ -75,7 +75,7 @@ public:
 	void goBack();
 	void startMap();
 	void restartMap();
-	void selectMap(int mapNr, bool initialSelect);
+	void selectMap(int mapNr);
 	void selectBonus(int id);
 	void increaseDifficulty();
 	void decreaseDifficulty();

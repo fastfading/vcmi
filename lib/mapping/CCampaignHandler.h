@@ -16,6 +16,7 @@ class CGHeroInstance;
 class CBinaryReader;
 class CMap;
 class CMapHeader;
+class CMapInfo;
 
 namespace CampaignVersion
 {
@@ -202,6 +203,7 @@ public:
 
 	CMap * getMap(int scenarioId = -1) const;
 	std::unique_ptr<CMapHeader> getHeader(int scenarioId = -1) const;
+	std::shared_ptr<CMapInfo> getMapInfo(int scenarioId = -1) const;
 
 	CCampaignState();
 	CCampaignState(std::unique_ptr<CCampaign> _camp);

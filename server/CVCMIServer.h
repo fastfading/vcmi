@@ -111,6 +111,10 @@ public:
 	void optionNextBonus(PlayerColor player, int dir); //dir == -1 or +1
 	void optionNextCastle(PlayerColor player, int dir); //dir == -1 or +
 
+	// Campaigns
+	void setCampaignMap(int mapId);
+	void setCampaignBonus(int bonusId);
+
 	ui8 getIdOfFirstUnallocatedPlayer();
 
 #ifdef VCMI_ANDROID

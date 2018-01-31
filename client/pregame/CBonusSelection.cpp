@@ -212,7 +212,6 @@ void CBonusSelection::init(std::shared_ptr<CCampaignState> ourCampaign)
 				if(!isCurrentMapConquerable || (isCurrentMapConquerable && g == *getCampaign()->currentMap))
 				{
 					highlightedRegion = regions.back();
-					selectMap(g, true);
 				}
 			}
 		}
@@ -569,7 +568,7 @@ void CBonusSelection::restartMap()
 	*/
 }
 
-void CBonusSelection::selectMap(int mapNr, bool initialSelect)
+void CBonusSelection::selectMap(int mapNr)
 {
 	CSH->setCampaignMap(mapNr);
 }
@@ -658,7 +657,7 @@ void CBonusSelection::CRegion::clickLeft(tribool down, bool previousState)
 	}
 	if(!down && selectable && !CSDL_Ext::isTransparent(graphics[0], GH.current->motion.x - pos.x, GH.current->motion.y - pos.y))
 	{
-		owner->selectMap(myNumber, false);
+		owner->selectMap(myNumber);
 		owner->highlightedRegion = this;
 		parent->showAll(screen);
 	}

@@ -23,6 +23,7 @@
 #include "../CHeroHandler.h"
 #include "CMapService.h"
 #include "CMap.h"
+#include "CMapInfo.h"
 
 namespace fs = boost::filesystem;
 
@@ -472,6 +473,18 @@ std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
 	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
 	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
 	return CMapService::loadMapHeader(buffer, mapContent.size(), scenarioName);
+}
+
+std::shared_ptr<CMapInfo> CCampaignState::getMapInfo(int scenarioId) const
+{
+	if(scenarioId == -1)
+		scenarioId = currentMap.get();
+
+	auto mapInfo = std::make_shared<CMapInfo>();
+	mapInfo->fileURI = camp->header.filename;
+	mapInfo->mapHeader = getHeader(scenarioId);
+	mapInfo->countPlayers();
+	return mapInfo;
 }
 
 std::string CCampaignHandler::prologVideoName(ui8 index)

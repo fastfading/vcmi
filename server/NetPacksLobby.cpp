@@ -116,41 +116,21 @@ bool LobbySetCampaign::applyOnServer(CVCMIServer * srv)
 	srv->si->mode = StartInfo::CAMPAIGN;
 	srv->si->campState = ourCampaign;
 	srv->si->turnTime = 0;
+	// MPTODO: campaign loading!
 	srv->campaignMap = 0;
+	srv->setCampaignMap(0);
 	return true;
 }
 
 bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
 {
-	srv->campaignMap = mapId;
-	srv->si->difficulty = srv->si->campState->camp->scenarios[mapId].difficulty;
-	srv->campaignBonus = -1;
-
-	auto mapInfo = std::make_shared<CMapInfo>();
-	mapInfo->fileURI = srv->si->mapname;
-	mapInfo->mapHeader = srv->si->campState->getHeader(mapId);
-	mapInfo->countPlayers();
-	srv->updateStartInfoOnMapChange(mapInfo);
-
+	srv->setCampaignMap(mapId);
 	return true;
 }
 
 bool LobbySetCampaignBonus::applyOnServer(CVCMIServer * srv)
 {
-	srv->campaignBonus = bonusId;
-
-	const CCampaignScenario & scenario = srv->si->campState->camp->scenarios[srv->campaignMap];
-	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if(bonDescs[bonusId].type == CScenarioTravel::STravelBonus::HERO)
-	{
-		for(auto & elem : srv->si->playerInfos)
-		{
-			if(elem.first == PlayerColor(bonDescs[bonusId].info1))
-				srv->setPlayerConnectedId(elem.second, 1);
-			else
-				srv->setPlayerConnectedId(elem.second, PlayerSettings::PLAYER_AI);
-		}
-	}
+	srv->setCampaignBonus(bonusId);
 	return true;
 }
 
