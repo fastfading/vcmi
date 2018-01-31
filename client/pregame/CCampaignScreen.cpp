@@ -179,7 +179,8 @@ CPrologEpilogVideo::CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog 
 
 	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
 	CCS->musich->playMusic("Music/" + CCampaignHandler::prologMusicName(spe.prologMusic), true);
-	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
+	// MPTODO: Custom campaign crashing on this?
+//	voiceSoundHandle = CCS->soundh->playSound(CCampaignHandler::prologVoiceName(spe.prologVideo));
 
 	text = new CMultiLineLabel(Rect(100, 500, 600, 100), EFonts::FONT_BIG, CENTER, Colors::METALLIC_GOLD, spe.prologText);
 	text->scrollTextTo(-100);
