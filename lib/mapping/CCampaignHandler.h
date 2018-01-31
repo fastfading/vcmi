@@ -14,6 +14,8 @@
 struct StartInfo;
 class CGHeroInstance;
 class CBinaryReader;
+class CMap;
+class CMapHeader;
 
 namespace CampaignVersion
 {
@@ -197,6 +199,9 @@ public:
 	const CCampaignScenario & getCurrentScenario() const;
 	CCampaignScenario & getCurrentScenario();
 	ui8 currentBonusID() const;
+
+	CMap * getMap(int scenarioId = -1) const;
+	std::unique_ptr<CMapHeader> getHeader(int scenarioId = -1) const;
 
 	CCampaignState();
 	CCampaignState(std::unique_ptr<CCampaign> _camp);

@@ -147,7 +147,7 @@ void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 			lobby->bonusSel->buttonBack->block(false);
 		}
 
-		lobby->bonusSel->mapDescription->setText(lobby->bonusSel->getHeader()->description);
+		lobby->bonusSel->mapDescription->setText(CSH->mi->mapHeader->description);
 		lobby->bonusSel->updateBonusSelection();
 
 		// From ::selectBonus

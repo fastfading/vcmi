@@ -848,16 +848,7 @@ void CGameState::initNewGame(bool allowSavingRandomMap)
 void CGameState::initCampaign()
 {
 	logGlobal->info("Open campaign map file: %d", scenarioOps->campState->currentMap.get());
-	auto campaign = scenarioOps->campState;
-	assert(vstd::contains(campaign->camp->mapPieces, *scenarioOps->campState->currentMap));
-
-	std::string scenarioName = scenarioOps->mapname.substr(0, scenarioOps->mapname.find('.'));
-	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(*campaign->currentMap);
-
-	std::string & mapContent = campaign->camp->mapPieces[*campaign->currentMap];
-	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-	map = CMapService::loadMap(buffer, mapContent.size(), scenarioName).release();
+	map = scenarioOps->campState->getMap();
 }
 
 void CGameState::checkMapChecksum()

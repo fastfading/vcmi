@@ -448,6 +448,32 @@ CCampaignState::CCampaignState( std::unique_ptr<CCampaign> _camp ) : camp(std::m
 	}
 }
 
+CMap * CCampaignState::getMap(int scenarioId) const
+{
+	// FIXME: there is certainly better way to handle maps inside campaigns
+	if(scenarioId == -1)
+		scenarioId = currentMap.get();
+	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
+	boost::to_lower(scenarioName);
+	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
+	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	return CMapService::loadMap(buffer, mapContent.size(), scenarioName).release();
+}
+
+std::unique_ptr<CMapHeader> CCampaignState::getHeader(int scenarioId) const
+{
+	if(scenarioId == -1)
+		scenarioId = currentMap.get();
+
+	std::string scenarioName = camp->header.filename.substr(0, camp->header.filename.find('.'));
+	boost::to_lower(scenarioName);
+	scenarioName += ':' + boost::lexical_cast<std::string>(scenarioId);
+	std::string & mapContent = camp->mapPieces.find(scenarioId)->second;
+	auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+	return CMapService::loadMapHeader(buffer, mapContent.size(), scenarioName);
+}
+
 std::string CCampaignHandler::prologVideoName(ui8 index)
 {
 	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));

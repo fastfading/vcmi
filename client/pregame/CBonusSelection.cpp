@@ -55,18 +55,6 @@ std::shared_ptr<CCampaignState> CBonusSelection::getCampaign()
 	return CSH->si->campState;
 }
 
-std::shared_ptr<CMapHeader> CBonusSelection::getHeader()
-{
-	std::string scenarioName = getCampaign()->camp->header.filename.substr(0, getCampaign()->camp->header.filename.find('.'));
-	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(CSH->campaignMap);
-
-	//get header
-	std::string & headerStr = getCampaign()->camp->mapPieces.find(CSH->campaignMap)->second;
-	auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
-	return CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName);
-}
-
 CBonusSelection::CBonusSelection(std::shared_ptr<CCampaignState> ourCampaign)
 {
 	init(ourCampaign);
@@ -97,10 +85,10 @@ void CBonusSelection::showAll(SDL_Surface * to)
 
 void CBonusSelection::show(SDL_Surface * to)
 {
-	std::string mapName = getHeader()->name;
-
 	if(!getCampaign()) //MPTODO
 		return;
+
+	std::string mapName = CSH->mi->mapHeader->name;
 	if(mapName.length())
 		printAtLoc(mapName, 481, 219, FONT_BIG, Colors::YELLOW, to);
 	else
@@ -112,7 +100,7 @@ void CBonusSelection::show(SDL_Surface * to)
 	mapDescription->showAll(to); //showAll because CTextBox has no show()
 
 	//map size icon
-	switch(getHeader()->width)
+	switch(CSH->mi->mapHeader->width)
 	{
 	case 36:
 		mapSizeIcons->setFrame(0);

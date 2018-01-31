@@ -116,6 +116,7 @@ bool LobbySetCampaign::applyOnServer(CVCMIServer * srv)
 	srv->si->mode = StartInfo::CAMPAIGN;
 	srv->si->campState = ourCampaign;
 	srv->si->turnTime = 0;
+	srv->campaignMap = 0;
 	return true;
 }
 
@@ -125,18 +126,9 @@ bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
 	srv->si->difficulty = srv->si->campState->camp->scenarios[mapId].difficulty;
 	srv->campaignBonus = -1;
 
-	/////
-	std::string scenarioName = srv->si->campState->camp->header.filename.substr(0, srv->si->campState->camp->header.filename.find('.'));
-	boost::to_lower(scenarioName);
-	scenarioName += ':' + boost::lexical_cast<std::string>(srv->campaignMap);
-	std::string & headerStr = srv->si->campState->camp->mapPieces.find(srv->campaignMap)->second;
-	auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
-	/////
-
 	auto mapInfo = std::make_shared<CMapInfo>();
-//	mapInfo->mapInit();
 	mapInfo->fileURI = srv->si->mapname;
-	mapInfo->mapHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName);
+	mapInfo->mapHeader = srv->si->campState->getHeader(mapId);
 	mapInfo->countPlayers();
 	srv->updateStartInfoOnMapChange(mapInfo);
 

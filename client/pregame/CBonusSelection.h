@@ -24,7 +24,6 @@ class CBonusSelection : public CIntObject
 {
 public:
 	std::shared_ptr<CCampaignState> getCampaign();
-	std::shared_ptr<CMapHeader> getHeader();
 	CBonusSelection(const std::string & campaignFName);
 	CBonusSelection(std::shared_ptr<CCampaignState> ourCampaign);
 	~CBonusSelection();

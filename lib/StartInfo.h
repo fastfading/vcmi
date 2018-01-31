@@ -142,11 +142,12 @@ struct LobbyState
 	std::shared_ptr<CMapInfo> mi;
 	std::map<ui8, ClientPlayer> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
 	int hostClientId;
-	// Campaign-only
+	// TODO: Campaign-only and we don't really need either of them.
+	// Before start both go into CCampaignState that is part of StartInfo
 	int campaignMap;
 	int campaignBonus;
 
-	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(0), campaignBonus(-1) {}
+	LobbyState() : si(new StartInfo()), hostClientId(-1), campaignMap(-1), campaignBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
