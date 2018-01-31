@@ -83,7 +83,9 @@ private:
 
 	// GUI components
 	SDL_Surface * background;
-	CButton * startB, * restartB, * backB;
+	CButton * buttonStart;
+	CButton * buttonRestart;
+	CButton * buttonBack;
 	CTextBox * campaignDescription, * mapDescription;
 	std::vector<SCampPositions> campDescriptions;
 	std::vector<CRegion *> regions;

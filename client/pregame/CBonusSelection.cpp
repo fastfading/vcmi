@@ -180,9 +180,9 @@ void CBonusSelection::init(std::shared_ptr<CCampaignState> ourCampaign)
 
 	blitAt(panel, 456, 6, background);
 
-	startB = new CButton(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), SDLK_RETURN);
-	restartB = new CButton(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
-	backB = new CButton(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
+	buttonStart = new CButton(Point(475, 536), "CBBEGIB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::startMap, this), SDLK_RETURN);
+	buttonRestart = new CButton(Point(475, 536), "CBRESTB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::restartMap, this), SDLK_RETURN);
+	buttonBack = new CButton(Point(624, 536), "CBCANCB.DEF", CButton::tooltip(), std::bind(&CBonusSelection::goBack, this), SDLK_ESCAPE);
 
 	//campaign name
 	if(getCampaign()->camp->header.name.length())
@@ -295,11 +295,11 @@ void CBonusSelection::updateStartButtonState(int selected)
 {
 	if(selected == -1)
 	{
-		startB->block(getCampaign()->camp->scenarios[CSH->selectedMap].travelOptions.bonusesToChoose.size());
+		buttonStart->block(getCampaign()->camp->scenarios[CSH->selectedMap].travelOptions.bonusesToChoose.size());
 	}
-	else if(startB->isBlocked())
+	else if(buttonStart->isBlocked())
 	{
-		startB->block(false);
+		buttonStart->block(false);
 	}
 }
 
@@ -586,19 +586,19 @@ void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 		if(!getCampaign()->currentMap || *getCampaign()->currentMap != mapNr)
 		{
 			// draw start button
-			restartB->disable();
-			startB->enable();
+			buttonRestart->disable();
+			buttonStart->enable();
 			if(!getCampaign()->mapsConquered.empty())
-				backB->block(true);
+				buttonBack->block(true);
 			else
-				backB->block(false);
+				buttonBack->block(false);
 		}
 		else
 		{
 			// draw restart button
-			startB->disable();
-			restartB->enable();
-			backB->block(false);
+			buttonStart->disable();
+			buttonRestart->enable();
+			buttonBack->block(false);
 		}
 
 //		CSH->setDifficulty(getCampaign()->camp->scenarios[mapNr].difficulty);
