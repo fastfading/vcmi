@@ -26,7 +26,7 @@
 #include "../../lib/CGeneralTextHandler.h"
 
 CLobbyScreen::CLobbyScreen(CMenuScreen::EState type, CMenuScreen::EGameMode gameMode)
-	: CSelectionBase(type)
+	: CSelectionBase(type), bonusSel(nullptr)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	tabSel = new SelectionTab(screenType, gameMode); //scenario selection tab

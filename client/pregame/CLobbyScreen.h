@@ -11,6 +11,7 @@
 
 #include "CSelectionBase.h"
 
+class CBonusSelection;
 /// The actual map selection screen which consists of the options and selection tab
 class CLobbyScreen : public CSelectionBase
 {
@@ -24,4 +25,5 @@ public:
 
 	 const CMapInfo * getMapInfo() override;
 	 const StartInfo * getStartInfo() override;
+	 CBonusSelection * bonusSel; // MPTODO
 };

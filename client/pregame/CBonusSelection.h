@@ -32,7 +32,7 @@ public:
 	void showAll(SDL_Surface * to) override;
 	void show(SDL_Surface * to) override;
 
-private:
+//private: MPTODO: for now all public
 	struct SCampPositions
 	{
 		std::string campPrefix;

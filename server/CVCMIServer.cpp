@@ -495,7 +495,7 @@ void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, 
 
 	if(si->mode == StartInfo::NEW_GAME)
 	{
-		if(mi && mi->isRandomMap)
+		if(mi && mi->isRandomMap && mapGenOpts)
 		{
 			si->mapGenOptions = std::shared_ptr<CMapGenOptions>(mapGenOpts);
 		}

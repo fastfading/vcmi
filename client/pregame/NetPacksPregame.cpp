@@ -24,6 +24,8 @@
 #include "../../lib/NetPacks.h"
 #include "../../lib/serializer/Connection.h"
 
+#include "CBonusSelection.h"
+#include "../widgets/TextControls.h"
 
 void startGame();
 
@@ -110,14 +112,44 @@ void LobbyChangeHost::applyOnLobby(CLobbyScreen * lobby)
 void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 {
 	static_cast<LobbyState &>(*CSH) = state;
-	if(CSH->mi && lobby->screenType != CMenuScreen::campaignList)
-		lobby->tabOpt->recreate();
+	if(lobby->bonusSel)
+	{
+		// From ::selectMap
+		// initialize restart / start button
+		if(!lobby->bonusSel->getCampaign()->currentMap || *lobby->bonusSel->getCampaign()->currentMap != CSH->selectedMap)
+		{
+			// draw start button
+			lobby->bonusSel->buttonRestart->disable();
+			lobby->bonusSel->buttonStart->enable();
+			if(!lobby->bonusSel->getCampaign()->mapsConquered.empty())
+				lobby->bonusSel->buttonBack->block(true);
+			else
+				lobby->bonusSel->buttonBack->block(false);
+		}
+		else
+		{
+			// draw restart button
+			lobby->bonusSel->buttonStart->disable();
+			lobby->bonusSel->buttonRestart->enable();
+			lobby->bonusSel->buttonBack->block(false);
+		}
 
-	lobby->card->changeSelection();
-	lobby->card->difficulty->setSelected(CSH->si->difficulty);
+		lobby->bonusSel->mapDescription->setText(lobby->bonusSel->getHeader()->description);
+		lobby->bonusSel->updateBonusSelection();
 
-	if(lobby->curTab == lobby->tabRand && CSH->si->mapGenOptions)
-		lobby->tabRand->setMapGenOptions(CSH->si->mapGenOptions);
+		// From ::selectBonus
+		lobby->bonusSel->updateStartButtonState(CSH->selectedBonus.get());
+	}
+	else
+	{
+		if(CSH->mi && lobby->screenType != CMenuScreen::campaignList)
+			lobby->tabOpt->recreate();
 
+		lobby->card->changeSelection();
+		lobby->card->difficulty->setSelected(CSH->si->difficulty);
+
+		if(lobby->curTab == lobby->tabRand && CSH->si->mapGenOptions)
+			lobby->tabRand->setMapGenOptions(CSH->si->mapGenOptions);
+	}
 	GH.totalRedraw();
 }

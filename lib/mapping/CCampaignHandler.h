@@ -192,7 +192,6 @@ public:
 
 	std::map<ui8, ui8> chosenCampaignBonuses;
 
-	//void initNewCampaign(const StartInfo &si);
 	void setCurrentMapAsConquered(const std::vector<CGHeroInstance*> & heroes);
 	boost::optional<CScenarioTravel::STravelBonus> getBonusForCurrentMap() const;
 	const CCampaignScenario & getCurrentScenario() const;

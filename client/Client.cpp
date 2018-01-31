@@ -660,7 +660,8 @@ void CClient::finishCampaign(std::shared_ptr<CCampaignState> camp)
 
 void CClient::proposeNextMission(std::shared_ptr<CCampaignState> camp)
 {
-	GH.pushInt(new CBonusSelection(camp));
+	// MPTODO campaign
+	//GH.pushInt(new CBonusSelection(camp));
 }
 
 void CClient::waitForMoveAndSend(PlayerColor color)

@@ -153,7 +153,8 @@ void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousStat
 		names.push_back(lol);
 		CSH->resetStateForLobby(StartInfo::NEW_GAME, &names);
 		CSH->startLocalServerAndConnect();
-		GH.pushInt(new CBonusSelection(campFile));
+		// MPTODO campaign
+		// GH.pushInt(new CBonusSelection(campFile));
 	}
 }
 

@@ -580,72 +580,11 @@ void CBonusSelection::restartMap()
 void CBonusSelection::selectMap(int mapNr, bool initialSelect)
 {
 	CSH->setCampaignMap(mapNr);
-	if(initialSelect || CSH->selectedMap != mapNr)
-	{
-		// initialize restart / start button
-		if(!getCampaign()->currentMap || *getCampaign()->currentMap != mapNr)
-		{
-			// draw start button
-			buttonRestart->disable();
-			buttonStart->enable();
-			if(!getCampaign()->mapsConquered.empty())
-				buttonBack->block(true);
-			else
-				buttonBack->block(false);
-		}
-		else
-		{
-			// draw restart button
-			buttonStart->disable();
-			buttonRestart->enable();
-			buttonBack->block(false);
-		}
-
-//		CSH->setDifficulty(getCampaign()->camp->scenarios[mapNr].difficulty);
-		//MPTODO CSH->selectedMap = mapNr;
-//		CSH->selectedBonus = boost::none;
-
-
-
-//		std::map<ui8, std::string> names;
-//		names[1] = settings["general"]["playerName"].String();
-// MPTODO		CSH->updateStartInfo(ourCampaign->camp->header.filename, startInfo, getHeader(), names);
-
-		mapDescription->setText(getHeader()->description);
-
-		updateBonusSelection();
-
-		GH.totalRedraw();
-	}
 }
 
 void CBonusSelection::selectBonus(int id)
 {
-	// Total redraw is needed because the border around the bonus images
-	// have to be undrawn/drawn.
-	if(!CSH->selectedBonus || *CSH->selectedBonus != id)
-	{
-		CSH->setCampaignBonus(id);
-//		CSH->selectedBonus = boost::make_optional(id);
-//		GH.totalRedraw();
-
-		updateStartButtonState(id);
-	}
-
-	const CCampaignScenario & scenario = getCampaign()->camp->scenarios[CSH->selectedMap];
-	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if(bonDescs[id].type == CScenarioTravel::STravelBonus::HERO)
-	{
-		std::map<ui8, std::string> names;
-		names[1] = settings["general"]["playerName"].String();
-		for(auto & elem : CSH->si->playerInfos)
-		{
-//			if(elem.first == PlayerColor(bonDescs[id].info1))
-//MPTODO				CGPreGame::setPlayer(elem.second, 1, names);
-//			else
-//MPTODO				CGPreGame::setPlayer(elem.second, 0, names);
-		}
-	}
+	CSH->setCampaignBonus(id);
 }
 
 void CBonusSelection::increaseDifficulty()

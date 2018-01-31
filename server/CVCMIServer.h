@@ -95,7 +95,7 @@ public:
 	void addToAnnounceQueue(CPackForLobby * pack);
 
 	void setPlayerConnectedId(PlayerSettings & pset, ui8 player) const;
-	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt);
+	void updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpt = {});
 
 	void clientConnected(std::shared_ptr<CConnection> c, std::vector<std::string> & names, std::string uuid, StartInfo::EMode mode);
 	void clientDisconnected(std::shared_ptr<CConnection> c);

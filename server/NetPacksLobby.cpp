@@ -18,6 +18,8 @@
 
 // Campaigns
 #include "../lib/mapping/CCampaignHandler.h"
+#include "../lib/mapping/CMapService.h"
+#include "../lib/mapping/CMapInfo.h"
 
 bool CLobbyPackToServer::checkClientPermissions(CVCMIServer * srv) const
 {
@@ -123,12 +125,40 @@ bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
 	srv->si->difficulty = srv->si->campState->camp->scenarios[mapId].difficulty;
 	srv->selectedBonus = boost::none;
 
+	/////
+	std::string scenarioName = srv->si->campState->camp->header.filename.substr(0, srv->si->campState->camp->header.filename.find('.'));
+	boost::to_lower(scenarioName);
+	scenarioName += ':' + boost::lexical_cast<std::string>(srv->selectedMap);
+	std::string & headerStr = srv->si->campState->camp->mapPieces.find(srv->selectedMap)->second;
+	auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
+	/////
+
+	auto mapInfo = std::make_shared<CMapInfo>();
+//	mapInfo->mapInit();
+	mapInfo->fileURI = srv->si->mapname;
+	mapInfo->mapHeader = CMapService::loadMapHeader(buffer, headerStr.size(), scenarioName);
+	mapInfo->countPlayers();
+	srv->updateStartInfoOnMapChange(mapInfo);
+
 	return true;
 }
 
 bool LobbySetCampaignBonus::applyOnServer(CVCMIServer * srv)
 {
-	srv->selectedBonus = bonusId;
+	srv->selectedBonus = boost::make_optional(bonusId);
+
+	const CCampaignScenario & scenario = srv->si->campState->camp->scenarios[srv->selectedMap];
+	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
+	if(bonDescs[bonusId].type == CScenarioTravel::STravelBonus::HERO)
+	{
+		for(auto & elem : srv->si->playerInfos)
+		{
+			if(elem.first == PlayerColor(bonDescs[bonusId].info1))
+				srv->setPlayerConnectedId(elem.second, 1);
+			else
+				srv->setPlayerConnectedId(elem.second, PlayerSettings::PLAYER_AI);
+		}
+	}
 	return true;
 }
 
