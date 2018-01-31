@@ -74,6 +74,7 @@ CBonusSelection::CBonusSelection(std::shared_ptr<CCampaignState> ourCampaign)
 
 CBonusSelection::CBonusSelection(const std::string & campaignFName)
 {
+	//MPTODO
 	auto ourCampaign = std::make_shared<CCampaignState>(CCampaignHandler::getCampaign(campaignFName));
 	init(ourCampaign);
 }
@@ -98,6 +99,8 @@ void CBonusSelection::show(SDL_Surface * to)
 {
 	std::string mapName = getHeader()->name;
 
+	if(!getCampaign()) //MPTODO
+		return;
 	if(mapName.length())
 		printAtLoc(mapName, 481, 219, FONT_BIG, Colors::YELLOW, to);
 	else
@@ -159,7 +162,8 @@ void CBonusSelection::init(std::shared_ptr<CCampaignState> ourCampaign)
 	bonuses = nullptr;
 
 	// Initialize start info
-	CSH->setCampaignState(ourCampaign);
+	if(!getCampaign()) //MPTODO
+		return;
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	static const std::string bgNames[] =
@@ -512,7 +516,7 @@ void CBonusSelection::updateCampaignState()
 {
 	getCampaign()->currentMap = boost::make_optional(CSH->selectedMap);
 	if(CSH->selectedBonus)
-		getCampaign()->chosenCampaignBonuses[CSH->selectedMap] = *CSH->selectedBonus;
+		getCampaign()->chosenCampaignBonuses[CSH->selectedMap] = CSH->selectedBonus;
 }
 
 void CBonusSelection::goBack()

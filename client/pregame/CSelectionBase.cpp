@@ -60,7 +60,12 @@ ISelectionScreenInfo::~ISelectionScreenInfo()
 std::string ISelectionScreenInfo::getMapName()
 {
 	if(screenType == CMenuScreen::campaignList)
-		return getMapInfo()->campaignHeader->name;
+	{
+		if(getMapInfo()->campaignHeader)
+			return getMapInfo()->campaignHeader->name;
+		else
+			return "MPTODO";
+	}
 	else
 		return getMapInfo()->mapHeader->name;
 }

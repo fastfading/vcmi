@@ -25,6 +25,9 @@
 #include "../CGameInfo.h"
 #include "../../lib/CGeneralTextHandler.h"
 
+// campaigns
+#include "CBonusSelection.h"
+
 CLobbyScreen::CLobbyScreen(CMenuScreen::EState type, CMenuScreen::EGameMode gameMode)
 	: CSelectionBase(type), bonusSel(nullptr)
 {
@@ -80,6 +83,7 @@ CLobbyScreen::CLobbyScreen(CMenuScreen::EState type, CMenuScreen::EGameMode game
 		break;
 	}
 	case CMenuScreen::campaignList:
+		tabSel->onSelect = std::bind(&IServerAPI::setMapInfo, CSH, _1, nullptr);
 		buttonStart = new CButton(Point(411, 535), "SCNRLOD.DEF", CButton::tooltip(), std::bind(&CLobbyScreen::startCampaign, this), SDLK_b);
 		break;
 	}
@@ -109,8 +113,11 @@ void CLobbyScreen::toggleTab(CIntObject * tab)
 
 void CLobbyScreen::startCampaign()
 {
-//	if(CSH->mi)
-//		GH.pushInt(new CBonusSelection(CSH->mi->fileURI));
+	if(CSH->mi)
+	{
+		auto ourCampaign = std::make_shared<CCampaignState>(CCampaignHandler::getCampaign(CSH->mi->fileURI));
+		CSH->setCampaignState(ourCampaign);
+	}
 }
 
 void CLobbyScreen::startScenario()

@@ -123,7 +123,7 @@ bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
 {
 	srv->selectedMap = mapId;
 	srv->si->difficulty = srv->si->campState->camp->scenarios[mapId].difficulty;
-	srv->selectedBonus = boost::none;
+	srv->selectedBonus = -1;
 
 	/////
 	std::string scenarioName = srv->si->campState->camp->header.filename.substr(0, srv->si->campState->camp->header.filename.find('.'));
@@ -145,7 +145,7 @@ bool LobbySetCampaignMap::applyOnServer(CVCMIServer * srv)
 
 bool LobbySetCampaignBonus::applyOnServer(CVCMIServer * srv)
 {
-	srv->selectedBonus = boost::make_optional(bonusId);
+	srv->selectedBonus = bonusId;
 
 	const CCampaignScenario & scenario = srv->si->campState->camp->scenarios[srv->selectedMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;

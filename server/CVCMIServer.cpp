@@ -216,6 +216,13 @@ void CVCMIServer::prepareToStartGame()
 	gh = std::make_shared<CGameHandler>();
 	switch(si->mode)
 	{
+	case StartInfo::CAMPAIGN:
+		logNetwork->info("Preparing to start new campaign");
+		si->campState->currentMap = selectedMap;
+		si->campState->chosenCampaignBonuses[selectedMap] = selectedBonus;
+		gh->init(si.get());
+		break;
+
 	case StartInfo::NEW_GAME:
 		logNetwork->info("Preparing to start new game");
 		gh->init(si.get());
@@ -445,15 +452,20 @@ void CVCMIServer::setPlayerConnectedId(PlayerSettings & pset, ui8 player) const
 void CVCMIServer::updateStartInfoOnMapChange(std::shared_ptr<CMapInfo> mapInfo, std::shared_ptr<CMapGenOptions> mapGenOpts)
 {
 	mi = mapInfo;
-
-	if(mi && si->mode == StartInfo::LOAD_GAME)
-		si->difficulty = mi->scenarioOpts->difficulty;
-
 	si->playerInfos.clear();
-	if(!mi)
-		return;
 
+	if(!mi)
+	{
+		return;
+	}
 	si->mapname = mi->fileURI;
+	if(mi->campaignHeader)
+	{
+		return;
+	}
+
+	if(si->mode == StartInfo::LOAD_GAME)
+		si->difficulty = mi->scenarioOpts->difficulty;
 
 	auto namesIt = playerNames.cbegin();
 

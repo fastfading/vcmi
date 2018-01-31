@@ -114,7 +114,17 @@ void LobbyChangeHost::applyOnLobby(CLobbyScreen * lobby)
 
 void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 {
+	bool campaign = false;
+	if(CSH->si->campState)
+		campaign = true;
 	static_cast<LobbyState &>(*CSH) = state;
+
+	if(!campaign && CSH->si->campState)
+	{
+		lobby->bonusSel = new CBonusSelection(CSH->mi->fileURI);
+		GH.pushInt(lobby->bonusSel);
+	}
+
 	if(lobby->bonusSel)
 	{
 		// From ::selectMap
@@ -141,7 +151,7 @@ void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 		lobby->bonusSel->updateBonusSelection();
 
 		// From ::selectBonus
-		lobby->bonusSel->updateStartButtonState(CSH->selectedBonus.get());
+		lobby->bonusSel->updateStartButtonState(CSH->selectedBonus);
 	}
 	else
 	{

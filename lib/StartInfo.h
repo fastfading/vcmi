@@ -144,9 +144,9 @@ struct LobbyState
 	int hostClientId;
 	// Campaign-only
 	int selectedMap;
-	boost::optional<int> selectedBonus;
+	int selectedBonus;
 
-	LobbyState() : si(new StartInfo()), hostClientId(-1), selectedMap(-1) {}
+	LobbyState() : si(new StartInfo()), hostClientId(-1), selectedMap(0), selectedBonus(-1) {}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
