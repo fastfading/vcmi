@@ -60,8 +60,11 @@ void LobbyClientDisconnected::applyOnLobby(CLobbyScreen * lobby)
 
 void LobbyChatMessage::applyOnLobby(CLobbyScreen * lobby)
 {
-	lobby->card->chat->addNewMessage(playerName + ": " + message);
-	GH.totalRedraw();
+	if(lobby->screenType != CMenuScreen::campaignList) // MPTODO campaigns
+	{
+		lobby->card->chat->addNewMessage(playerName + ": " + message);
+		GH.totalRedraw();
+	}
 }
 
 void LobbyGuiAction::applyOnLobby(CLobbyScreen * lobby)
@@ -146,7 +149,11 @@ void LobbyUpdateState::applyOnLobby(CLobbyScreen * lobby)
 			lobby->tabOpt->recreate();
 
 		lobby->card->changeSelection();
-		lobby->card->difficulty->setSelected(CSH->si->difficulty);
+
+		if(lobby->screenType != CMenuScreen::campaignList) // MPTODO campaigns
+		{
+			lobby->card->difficulty->setSelected(CSH->si->difficulty);
+		}
 
 		if(lobby->curTab == lobby->tabRand && CSH->si->mapGenOptions)
 			lobby->tabRand->setMapGenOptions(CSH->si->mapGenOptions);
